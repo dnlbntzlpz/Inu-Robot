@@ -537,9 +537,6 @@
 
   <div class="main-container">
    <div class="left-section">
-    
-   </div>
-   <div class="middle-section">
     <div class="keyboard-controls-container">
         <div class="keyboard-controls">
             <h3>Keyboard</h3>
@@ -574,6 +571,9 @@
             </ul>
         </div>
     </div>
+    
+   </div>
+   <div class="middle-section">
     
     <!-- Robot Actions -->
     <div class="robot-actions">
@@ -1146,24 +1146,35 @@
             }
         });
 
-        // Add click listeners to all the keys
+        // Add touch and mouse handling for buttons
         document.querySelectorAll('.key').forEach((button) => {
             const command = button.getAttribute('data-command');
 
-            button.addEventListener('mousedown', () => {
-                executeCommand(command);
-                button.classList.add('active');
+            // Handle mouse down and touch start (button pressed)
+            const startAction = () => {
+                executeCommand(command); // Trigger the command
+                button.classList.add('active'); // Add visual feedback
+            };
+
+            // Handle mouse up, touch end, and touch cancel (button released)
+            const endAction = () => {
+                executeCommand(command, true); // Stop the command
+                button.classList.remove('active'); // Remove visual feedback
+            };
+
+            // Mouse events
+            button.addEventListener('mousedown', startAction);
+            button.addEventListener('mouseup', endAction);
+            button.addEventListener('mouseleave', endAction);
+
+            // Touch events
+            button.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Prevent default touch behavior
+                startAction();
             });
 
-            button.addEventListener('mouseup', () => {
-                executeCommand(command, true);
-                button.classList.remove('active');
-            });
-
-            button.addEventListener('mouseleave', () => {
-                executeCommand(command, true);
-                button.classList.remove('active');
-            });
+            button.addEventListener('touchend', endAction);
+            button.addEventListener('touchcancel', endAction);
         });
 
         // Handle Keyboard Interactions
