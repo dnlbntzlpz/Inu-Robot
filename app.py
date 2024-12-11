@@ -63,6 +63,8 @@ def handle_control_command(data):
         elif command == 'switch_gait':
             gait_type = data.get('gait_type', 0)
             robot_control.switch_gait(gait_type)
+        elif command == 'sit_down':
+            robot_control.sit()
         else:
             logger.warning(f"Unknown command: {command}")
 
