@@ -251,6 +251,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
+            margin-top: 20px;
         }
     
         .status-panel h3, .keyboard-panel h3 {
@@ -287,14 +288,14 @@
         }
 
         .keyboard-controls-container {
-            display: flex; /* Use flexbox for side-by-side layout */
+            display: flex; /* Flexbox for side-by-side layout */
             justify-content: space-between; /* Add space between the sections */
             align-items: flex-start; /* Align items at the top */
-            margin-top: 20px;
             gap: 20px; /* Add spacing between the sections */
         }
     
         .keyboard-controls {
+            flex: 1;
             background: #f9f9f9;
             padding: 15px;
             border-radius: 8px;
@@ -423,7 +424,7 @@
         .status-button.active .key-hint {
             color: rgba(255, 255, 255, 0.7);
         }
-
+        
         .control-list {
             flex: 1;
             padding: 15px;
@@ -468,8 +469,10 @@
   </style>
  </head>
  <body>
+    <div class="header">
+        <h1>Robot Teleoperation System</h1>
+    </div>
   <div class="main-container">
-   <!-- Left Section: Video Feed and Status Dashboard -->
    <div class="left-section">
     <div class="video-feed">
      <img alt="Video stream" id="videoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg=="/>
@@ -534,109 +537,87 @@
      </div>
     </div>
    </div>
-   <!-- Middle Section: Controls and Robot Actions -->
    <div class="middle-section">
-    <div class="keyboard-controls">
-     <h3>
-      Keyboard
-     </h3>
-     <div class="keyboard-grid">
-      <!-- W Key -->
-      <div class="key-row">
-       <div class="key" id="keyW">
-        W
-       </div>
-      </div>
-      <!-- A S D Keys -->
-      <div class="key-row">
-       <div class="key" id="keyA">
-        A
-       </div>
-       <div class="key" id="keyS">
-        S
-       </div>
-       <div class="key" id="keyD">
-        D
-       </div>
-      </div>
-      <!-- Arrow Keys -->
-      <div class="key-row">
-       <div class="key" id="keyArrowLeft">
-        ←
-       </div>
-       <div class="key" id="keyArrowRight">
-        →
-       </div>
-      </div>
-     </div>
+    <div class="keyboard-controls-container">
+        <div class="keyboard-controls">
+            <h3>Keyboard</h3>
+            <div class="keyboard-grid">
+                <div class="key-row"><div class="key" id="keyW" data-command="move-up">W</div></div>
+                <div class="key-row">
+                    <div class="key" id="keyA" data-command="move-left">A</div>
+                    <div class="key" id="keyS" data-command="move-down">S</div>
+                    <div class="key" id="keyD" data-command="move-right">D</div>
+                </div>
+                <div class="key-row">
+                    <div class="key" id="keyArrowLeft" data-command="rotate-left">←</div>
+                    <div class="key" id="keyArrowRight" data-command="rotate-right">→</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Keyboard Control List -->
+        <div class="control-list">
+            <h3>Keyboard Controls</h3>
+            <ul>
+                <li><strong>W</strong>: Move Forward</li>
+                <li><strong>S</strong>: Move Backward</li>
+                <li><strong>A</strong>: Move Left</li>
+                <li><strong>D</strong>: Move Right</li>
+                <li><strong>Arrow Up</strong>: Stand Up</li>
+                <li><strong>Arrow Down</strong>: Lay Down</li>
+                <li><strong>B</strong>: Balance</li>
+                <li><strong>X</strong>: Sit Down</li>
+                <li><strong>Arrow Left</strong>: Rotate Left</li>
+                <li><strong>Arrow Right</strong>: Rotate Right</li>
+            </ul>
+        </div>
     </div>
+    
+    <!-- Robot Actions -->
     <div class="robot-actions">
-     <h3>
-      Robot Actions
-     </h3>
-     <div class="actions-grid">
-      <!-- Stand Up Button -->
-      <div class="status-button" id="standButton" title="Press ↑ to stand">
-       <svg fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 5l-7 7h4v7h6v-7h4l-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-        </path>
-       </svg>
-       <div class="status-text">
-        Stand Up
-       </div>
-       <div class="key-hint">
-        ↑
-       </div>
-      </div>
-      <!-- Lay Down Button -->
-      <div class="status-button" id="layButton" title="Press ↓ to lay down">
-       <svg fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 19l7-7h-4v-7h-6v7H5l7 7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-        </path>
-       </svg>
-       <div class="status-text">
-        Lay Down
-       </div>
-       <div class="key-hint">
-        ↓
-       </div>
-      </div>
-      <!-- Sit Down Button -->
-      <div class="status-button" id="sitButton" title="Press X to sit down">
-       <svg fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 12l7 7h-4v-4h-6v4H5l7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-        </path>
-       </svg>
-       <div class="status-text">
-        Sit Down
-       </div>
-       <div class="key-hint">
-        X
-       </div>
-      </div>
-      <!-- Balance Button -->
-      <div class="status-button" id="balanceButton" title="Press B to balance">
-       <svg fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-        </path>
-       </svg>
-       <div class="status-text">
-        Balance
-       </div>
-       <div class="key-hint">
-        B
-       </div>
-      </div>
-     </div>
+        <h3>Robot Actions</h3>
+        <div class="actions-grid">
+            <div class="status-button" id="standButton" title="Press ↑ to stand">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 5l-7 7h4v7h6v-7h4l-7-7z"/>
+                </svg>
+                <div class="status-text">Stand Up</div>
+                <div class="key-hint">↑</div>
+            </div>
+            <div class="status-button" id="layButton" title="Press ↓ to lay down">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 19l7-7h-4v-7h-6v7H5l7 7z"/>
+                </svg>
+                <div class="status-text">Lay Down</div>
+                <div class="key-hint">↓</div>
+            </div>
+            <div class="status-button" id="sitButton" title="Press X to sit down">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 12l7 7h-4v-4h-6v4H5l7-7z"/>
+                </svg>
+                <div class="status-text">Sit Down</div>
+                <div class="key-hint">X</div>
+            </div>
+            <div class="status-button" id="balanceButton" title="Press B to balance">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div class="status-text">Balance</div>
+                <div class="key-hint">B</div>
+            </div>
+        </div>
     </div>
-    <!-- Right Section: Command History -->
+</div>
     <div class="right-section">
      <div class="status-panel">
       <h3>
        Command History
       </h3>
       <ul id="commandHistoryList" style="list-style-type: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto;">
-       <!-- Commands will be appended here dynamically -->
       </ul>
      </div>
     </div>
@@ -906,25 +887,31 @@
             }
         }
 
+        function updateKeyVisual(key, active) {
+            const keyElement = document.getElementById(`key${key.toUpperCase()}`);
+            if (keyElement) {
+                if (active) {
+                    keyElement.classList.add('active');
+                } else {
+                    keyElement.classList.remove('active');
+                }
+            }
+        }
+
         // Add this function to append commands to the history
         function addCommandToHistory(command) {
-            const commandHistoryList = document.getElementById('commandHistoryList');
+            const historyList = document.getElementById('commandHistoryList');
             const listItem = document.createElement('li');
             listItem.textContent = command;
-            listItem.style.padding = '5px 10px';
-            listItem.style.borderBottom = '1px solid #ddd';
-            commandHistoryList.appendChild(listItem);
-
-            // Keep the latest command in view
-            commandHistoryList.scrollTop = commandHistoryList.scrollHeight;
+            historyList.appendChild(listItem);
+            historyList.scrollTop = historyList.scrollHeight; // Auto-scroll to the latest command
         }
 
         // Function to execute commands
-        function executeCommand(command, isStop = false) {
-            // Default speed values
+        function executeCommand(command, stop = false) {
             let x_speed = 0, y_speed = 0, yaw_speed = 0;
 
-            if (!isStop) {
+            if (!stop) {
                 switch (command) {
                     case 'move-up':
                         y_speed = -0.7;
@@ -950,10 +937,11 @@
                         yaw_speed = 0.7;
                         addCommandToHistory('Rotate: Right');
                         break;
+                    default:
+                        console.warn('Unknown command:', command);
                 }
             }
 
-            // Send the movement command to the server
             sendMovementCommand(x_speed, y_speed, yaw_speed);
         }
 
@@ -1153,48 +1141,28 @@
         });
 
         // Add click listeners to all the keys
-        document.querySelectorAll('.key').forEach(keyElement => {
-            const command = keyElement.getAttribute('data-command');
+        document.querySelectorAll('.key').forEach((button) => {
+            const command = button.getAttribute('data-command');
 
-            // Mouse events
-            keyElement.addEventListener('mousedown', () => {
+            button.addEventListener('mousedown', () => {
                 executeCommand(command);
-                keyElement.classList.add('active');
+                button.classList.add('active');
             });
 
-            keyElement.addEventListener('mouseup', () => {
-                executeCommand(command, true); // Stop the action
-                keyElement.classList.remove('active');
+            button.addEventListener('mouseup', () => {
+                executeCommand(command, true);
+                button.classList.remove('active');
             });
 
-            keyElement.addEventListener('mouseleave', () => {
-                executeCommand(command, true); // Stop the action
-                keyElement.classList.remove('active');
-            });
-
-            // Touch events
-            keyElement.addEventListener('touchstart', (e) => {
-                e.preventDefault(); // Prevent default touch behavior
-                executeCommand(command); // Start the action
-                keyElement.classList.add('active'); // Visual feedback
-            });
-
-            keyElement.addEventListener('touchend', (e) => {
-                e.preventDefault(); // Prevent default touch behavior
-                executeCommand(command, true); // Stop the action
-                keyElement.classList.remove('active'); // Remove visual feedback
-            });
-
-            keyElement.addEventListener('touchcancel', (e) => {
-                e.preventDefault(); // Prevent default touch behavior
-                executeCommand(command, true); // Stop the action
-                keyElement.classList.remove('active'); // Remove visual feedback
+            button.addEventListener('mouseleave', () => {
+                executeCommand(command, true);
+                button.classList.remove('active');
             });
         });
 
-        // Add keyboard event listeners
+        // Handle Keyboard Interactions
         document.addEventListener('keydown', (e) => {
-            const keyMap = {
+            const commandMap = {
                 'w': 'move-up',
                 's': 'move-down',
                 'a': 'move-left',
@@ -1203,18 +1171,15 @@
                 'arrowright': 'rotate-right',
             };
 
-            const command = keyMap[e.key.toLowerCase()];
+            const command = commandMap[e.key.toLowerCase()];
             if (command) {
                 executeCommand(command);
-
-                // Visual feedback
-                const keyElement = document.getElementById(`key${e.key.toUpperCase()}`);
-                if (keyElement) keyElement.classList.add('active');
+                updateKeyVisual(e.key, true);
             }
         });
 
         document.addEventListener('keyup', (e) => {
-            const keyMap = {
+            const commandMap = {
                 'w': 'move-up',
                 's': 'move-down',
                 'a': 'move-left',
@@ -1223,13 +1188,10 @@
                 'arrowright': 'rotate-right',
             };
 
-            const command = keyMap[e.key.toLowerCase()];
+            const command = commandMap[e.key.toLowerCase()];
             if (command) {
-                executeCommand(command, true); // Stop the action
-
-                // Remove visual feedback
-                const keyElement = document.getElementById(`key${e.key.toUpperCase()}`);
-                if (keyElement) keyElement.classList.remove('active');
+                executeCommand(command, true);
+                updateKeyVisual(e.key, false);
             }
         });
 
@@ -1249,9 +1211,15 @@
             updateButtonStates(); // Update the button highlights
         });
 
-        // Restore button states on page load
+        // Restore Button States on Page Load
         document.addEventListener('DOMContentLoaded', () => {
-            updateButtonStates(); // Highlight the correct button
+            const savedState = localStorage.getItem('dogState') || 'lay';
+            robotState.isStanding = savedState === 'stand';
+            robotState.isLaying = savedState === 'lay';
+            robotState.isBalancing = savedState === 'balance';
+            robotState.isSitting = savedState === 'sit';
+
+            updateButtonStates();
         });
 
         //Status Dashboard
@@ -1271,6 +1239,7 @@
             document.getElementById('status-temperature').textContent = `${statusData.temperature || '--'} °C`;
             document.getElementById('status-connection').textContent = statusData.connection || '--';
         }
+
    </script>
   </div>
  </body>
