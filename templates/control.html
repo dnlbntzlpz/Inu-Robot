@@ -165,7 +165,6 @@
         }
 
         /* Status Dashboard Styling */
-
         .status-dashboard-container {
             display: flex; /* Use Flexbox */
             justify-content: center; /* Center horizontally */
@@ -211,8 +210,6 @@
             color: #333;
             font-weight: 600;
         }
-
-
     
         .camera-status {
             display: flex;
@@ -510,7 +507,7 @@
             <p class="video-label">Primary Camera</p>
         </div>
         <div class="video-feed">
-            <img id="secondaryVideoFeed" src="data:image/jpeg;base64," alt="Secondary Video Stream (Not Implemented)">
+            <img id="usbVideoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg==" alt="Secondary Camera Feed">
             <p class="video-label">Secondary Camera</p>
         </div>
     </div>
@@ -636,6 +633,7 @@
         });
 
         const videoFeed = document.getElementById('videoFeed');
+        const usbVideoFeed = document.getElementById('usbVideoFeed');
         const latencySpan = document.getElementById('latency');
         const fpsSpan = document.getElementById('fps');
         const indicator = document.getElementById('joystickIndicator');
@@ -762,7 +760,10 @@
             updateStatusDashboard();
         });
 
-
+        socket.on('usb_frame', (data) => {
+            usbVideoFeed.src = `data:image/jpeg;base64,${data.data}`;
+            console.log("Received USB frame");  // Debug log
+        });
 
         socket.on('connect_error', (error) => {
             console.log('Connection Error:', error);
