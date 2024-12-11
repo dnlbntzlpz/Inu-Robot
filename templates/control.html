@@ -136,35 +136,53 @@
         }
     
         /* Video Feed Styling */
+        .video-feeds {
+            display: flex; /* Align feeds side by side */
+            width: 100%; /* Full width */
+            gap: 20px; /* Spacing between the feeds */
+            padding: 20px; /* Add padding around the feeds */
+            box-sizing: border-box; /* Include padding in width calculations */
+        }
+
         .video-feed {
-            position: relative;
-            background: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            width: 640px; /* Fixed width */
-            height: 360px; /* Fixed height */
+            flex: 1; /* Make both feeds take up equal width */
+            max-width: 50%; /* Prevent them from exceeding half the width */
+            text-align: center; /* Center-align the labels */
         }
 
         .video-feed img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%; /* Ensure the image scales to fit the container */
-            height: 100%; /* Ensure the image scales to fit the container */
-            object-fit: cover; /* Ensure the aspect ratio is maintained */
+            width: 100%; /* Full width of the container */
+            height: auto; /* Maintain aspect ratio */
+            border-radius: 8px; /* Optional: Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for better appearance */
+        }
+ 
+        .video-label {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #333;
+            font-weight: bold;
         }
 
         /* Status Dashboard Styling */
+
+        .status-dashboard-container {
+            display: flex; /* Use Flexbox */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically (if needed) */
+            height: 100%; /* Optional: set height to fill the parent container */
+            padding: 20px; /* Optional: padding around the dashboard */
+            box-sizing: border-box; /* Include padding in width/height calculations */
+        }
+
         .status-dashboard {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            font-size: 0.9rem;
-            max-width: 640px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            background: #f9f9f9; /* Light background */
+            padding: 20px; /* Add spacing inside the dashboard */
+            border-radius: 8px; /* Optional: Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            text-align: center; /* Center the text inside */
+            max-width: 400px; /* Optional: Limit the width of the dashboard */
+            width: 100%; /* Make it responsive */
         }
 
         .status-dashboard h4 {
@@ -193,6 +211,8 @@
             color: #333;
             font-weight: 600;
         }
+
+
     
         .camera-status {
             display: flex;
@@ -229,13 +249,23 @@
             gap: 20px;
         }
 
+        .controller-status-container {
+            display: flex; /* Use Flexbox */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically (if needed) */
+            height: 100%; /* Optional: full height of the parent container */
+            padding: 20px; /* Optional: padding around the container */
+            box-sizing: border-box; /* Include padding in width/height calculations */
+        }
+
         .controller-status {
-            padding: 10px;
-            border-top: 1px solid #ddd;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            background: #f9f9f9; /* Light background */
+            padding: 15px; /* Add padding */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            text-align: center; /* Center the text */
+            max-width: 400px; /* Optional: limit the size */
+            width: 100%; /* Make it responsive */
         }
     
         .status-panel, .keyboard-panel {
@@ -269,16 +299,17 @@
         }
             
         .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; /* Align status indicator and text */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Align vertically */
+            gap: 10px; /* Add spacing between the items */
         }
     
         .status-indicator {
             width: 15px;
             height: 15px;
             border-radius: 50%;
-            background-color: red; /* Default status */
+            background-color: red; /* Default status color */
             flex-shrink: 0;
         }
 
@@ -472,70 +503,44 @@
     <div class="header">
         <h1>Robot Teleoperation System</h1>
     </div>
+
+    <div class="video-feeds">
+        <div class="video-feed">
+            <img id="videoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg==" alt="Primary Video Stream">
+            <p class="video-label">Primary Camera</p>
+        </div>
+        <div class="video-feed">
+            <img id="secondaryVideoFeed" src="data:image/jpeg;base64," alt="Secondary Video Stream (Not Implemented)">
+            <p class="video-label">Secondary Camera</p>
+        </div>
+    </div>
+
+    <div class="status-dashboard-container">
+        <div class="status-dashboard">
+            <h4>Status Dashboard</h4>
+            <ul>
+                <li><strong>Latency:</strong> <span id="status-latency">-- ms</span></li>
+                <li><strong>FPS:</strong> <span id="status-fps">--</span></li>
+                <li><strong>Battery:</strong> <span id="status-battery">--%</span></li>
+                <li><strong>Temperature:</strong> <span id="status-temperature">-- °C</span></li>
+                <li><strong>Connection:</strong> <span id="status-connection">--</span></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="controller-status-container">
+        <div class="controller-status">
+            <h4>Controller Status</h4>
+            <div class="connection-status">
+                <div class="status-indicator" id="joystickIndicator"></div>
+                <span id="joystickStatus">No Gamepad Detected</span>
+            </div>
+        </div>
+    </div>
+
   <div class="main-container">
    <div class="left-section">
-    <div class="video-feed">
-     <img alt="Video stream" id="videoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg=="/>
-    </div>
-    <div class="status-dashboard">
-     <h4>
-      Status Dashboard
-     </h4>
-     <ul>
-      <li>
-       <strong>
-        Latency:
-       </strong>
-       <span id="status-latency">
-        -- ms
-       </span>
-      </li>
-      <li>
-       <strong>
-        FPS:
-       </strong>
-       <span id="status-fps">
-        --
-       </span>
-      </li>
-      <li>
-       <strong>
-        Battery:
-       </strong>
-       <span id="status-battery">
-        --%
-       </span>
-      </li>
-      <li>
-       <strong>
-        Temperature:
-       </strong>
-       <span id="status-temperature">
-        -- °C
-       </span>
-      </li>
-      <li>
-       <strong>
-        Connection:
-       </strong>
-       <span id="status-connection">
-        --
-       </span>
-      </li>
-     </ul>
-     <div class="controller-status">
-      <h4>
-       Controller Status
-      </h4>
-      <div class="connection-status">
-       <div class="status-indicator" id="joystickIndicator">
-       </div>
-       <span id="joystickStatus">
-        No Gamepad Detected
-       </span>
-      </div>
-     </div>
-    </div>
+    
    </div>
    <div class="middle-section">
     <div class="keyboard-controls-container">
