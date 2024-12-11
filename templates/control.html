@@ -350,6 +350,17 @@
                             <div class="status-text">Lay Down</div>
                             <div class="key-hint">↓</div>
                         </div>
+
+                        <!-- Sit Down Button -->
+                        <div class="status-button" id="sitButton" title="Press X to sit down">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 12l7 7h-4v-4h-6v4H5l7-7z"/>
+                            </svg>
+                            <div class="status-text">Sit Down</div>
+                            <div class="key-hint">X</div>
+                        </div>
+
                 
                         <!-- Balance Button -->
                         <div class="status-button" id="balanceButton" title="Press B to balance">
@@ -393,11 +404,13 @@
         let robotState = {
             isStanding: false,
             isLaying: false,
-            isBalancing: false
+            isBalancing: false,
+            isSitting: false // Add isSitting state
         };
 
         const standButton = document.getElementById('standButton');
         const layButton = document.getElementById('layButton');
+        const sitButton = document.getElementById('sitButton');
         const balanceButton = document.getElementById('balanceButton');
 
         let lastFrameTime = performance.now();
@@ -445,11 +458,13 @@
             const standButton = document.getElementById('standButton');
             const layButton = document.getElementById('layButton');
             const balanceButton = document.getElementById('balanceButton');
+            const sitButton = document.getElementById('sitButton'); // New Sit Button
 
             // Reset all buttons
             standButton.classList.remove('active');
             layButton.classList.remove('active');
             balanceButton.classList.remove('active');
+            sitButton.classList.remove('active');
 
             // Highlight the correct button based on the state
             if (currentState === 'stand') {
@@ -458,6 +473,8 @@
                 layButton.classList.add('active');
             } else if (currentState === 'balance') {
                 balanceButton.classList.add('active');
+            } else if (currentState === 'sit') {
+                sitButton.classList.add('active');
             }
         }
 
@@ -755,6 +772,15 @@
                     robotState.isLaying = false;
                     updateButtonStates();
                     break;
+                case 'x': // Add Sit Down command
+                    socket.emit('control_command', { 'command': 'sit_down' });
+                    addCommandToHistory('Sit Down');
+                    robotState.isStanding = false;
+                    robotState.isLaying = false;
+                    robotState.isBalancing = false;
+                    robotState.isSitting = true; // Add new state for sitting
+                    updateButtonStates();
+                    break;
             }
         });
 
@@ -781,6 +807,9 @@
                     updateKeyDisplay('ArrowRight', false);
                     sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
                     break;
+                case 'x': // Add Sit Down key feedback
+                    updateKeyDisplay('X', false);
+                    break;
             }
         });
 
@@ -801,6 +830,17 @@
             robotState.isBalancing = false;
             updateButtonStates();
             addCommandToHistory('Lay Down');
+        });
+
+        sitButton.addEventListener('click', () => {
+            socket.emit('control_command', { 'command': 'sit_down' }); // Send the sit command
+            robotState.isStanding = false;
+            robotState.isLaying = false;
+            robotState.isBalancing = false;
+            robotState.isSitting = true; // Update the robot's state
+            localStorage.setItem('dogState', 'sit'); // Save state as 'sit'
+            updateButtonStates(); // Update button highlights
+            addCommandToHistory('Sit Down'); // Add to command history
         });
 
         balanceButton.addEventListener('click', () => {
