@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Control Panel</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body {
+            margin: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+    
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+    
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(90deg, #673ab7, #4caf50);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+    
+        .button {
+            padding: 8px 16px;
+            background: linear-gradient(90deg, #673ab7, #4caf50);
+            border-radius: 20px;
+            border: none;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+    
+        .button:hover {
+            opacity: 0.9;
+        }
+    
+        .dashboard {
+            display: grid;
+            grid-template-columns: 2fr 1.3fr;
+            grid-gap: 20px;
+        }
+    
+        .panel {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    
+        .panel h2 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: #4caf50;
+            font-weight: 600;
+        }
+    
+        .video-section {
+            position: relative;
+        }
+    
+        .video-feed {
+            background-color: #e0e0e0;
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+    
+        .video-feed img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    
+        .camera-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: red;
+            border-radius: 50%;
+        }
+    
+        .video-stats {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #666;
+            display: flex;
+            gap: 10px;
+        }
+    
+        .controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+    
+        .status-panel, .keyboard-panel, .robot-actions {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    
+        .status-panel h3, .keyboard-panel h3, .robot-actions h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #673ab7;
+            font-weight: 600;
+        }
+    
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+    
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #dc3545;
+        }
+    
+        .keyboard-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+    
+        .keyboard-row {
+            display: flex;
+            gap: 5px;
+        }
+    
+        .arrow-keys {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+    
+        .key {
+            width: 35px;
+            height: 35px;
+            background: #fff;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: monospace;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.15s ease;
+
+            /* Prevent text selection and touch highlighting */
+            user-select: none; /* Standard */
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* Older IE */
+
+            /* Disable long-press behavior and touch feedback */
+            -webkit-touch-callout: none; /* Disable context menu on iOS */
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on Android */
+            touch-action: manipulation; /* Allow basic touch events but prevent zooming/panning */
+        }
+    
+        .key.active {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+            transform: translateY(1px);
+        }
+    
+        .actions-grid {
+            display: flex;
+            gap: 10px;
+        }
+    
+        .status-button {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    
+        .status-button svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 8px;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+    
+        .status-button .status-text {
+            color: #333;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+    
+        .status-button .key-hint {
+            color: #999;
+            font-size: 0.8rem;
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+        }
+    
+        .status-button.active {
+            background: linear-gradient(135deg, #673ab7, #4caf50);
+            border-color: #4caf50;
+        }
+    
+        .status-button.active svg,
+        .status-button.active .status-text {
+            color: white;
+        }
+    
+        .status-button.active .key-hint {
+            color: rgba(255, 255, 255, 0.7);
+        }
+    
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Robot Teleoperation System</h1>
+            <a href="{{ url_for('index') }}" class="button">Home</a>
+        </div>
+
+        <div class="dashboard">
+            <div class="panel video-section">
+                <div class="camera-status">
+                    <div class="status-dot" id="cameraStatusDot"></div>
+                    <span id="cameraStatusText">Disconnected</span>
+                </div>
+                <div class="video-feed">
+                    <img id="videoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg==" alt="Video stream">
+                    <div class="video-stats">
+                        <span>Latency: <span id="latency">0</span>ms</span>
+                        <span>FPS: <span id="fps">0</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <div class="status-panel">
+                    <h3>Controller Status</h3>
+                    <div class="connection-status">
+                        <div class="status-indicator" id="joystickIndicator"></div>
+                        <span id="joystickStatus">No Gamepad Detected</span>
+                    </div>
+                </div>
+
+                <div class="keyboard-panel">
+                    <h3>Keyboard Controls</h3>
+                    <div class="keyboard-controls">
+                        <div class="keyboard-row">
+                            <div class="key" id="keyW" data-command="move-up">W</div>
+                        </div>
+                        <div class="keyboard-row">
+                            <div class="key" id="keyA" data-command="move-left">A</div>
+                            <div class="key" id="keyS" data-command="move-down">S</div>
+                            <div class="key" id="keyD" data-command="move-right">D</div>
+                        </div>
+                        <div class="arrow-keys">
+                            <div class="key" id="keyArrowLeft" data-command="rotate-left">←</div>
+                            <div class="key" id="keyArrowRight" data-command="rotate-right">→</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="robot-actions">
+                    <h3>Robot Actions</h3>
+                    <div class="actions-grid">
+                        <div class="status-button" id="standButton" title="Press ↑ to stand">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                            </svg>
+                            <div class="status-text">Stand Up</div>
+                            <div class="key-hint">↑</div>
+                        </div>
+                        <div class="status-button" id="sitButton" title="Press ↓ to sit">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 19l9 2-9-6-9 6 9-2zm0 0V5"/>
+                            </svg>
+                            <div class="status-text">Sit Down</div>
+                            <div class="key-hint">↓</div>
+                        </div>
+                        <div class="status-button" id="balanceButton" title="Press B to balance">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div class="status-text">Balance</div>
+                            <div class="key-hint">B</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-panel">
+                    <h3>Command History</h3>
+                    <ul id="commandHistoryList" style="list-style-type: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto;">
+                        <!-- Commands will be appended here dynamically -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io({
+            transports: ['websocket'],
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 20000
+        });
+
+        const videoFeed = document.getElementById('videoFeed');
+        const latencySpan = document.getElementById('latency');
+        const fpsSpan = document.getElementById('fps');
+        const indicator = document.getElementById('joystickIndicator');
+        const statusText = document.getElementById('joystickStatus');
+        const cameraStatusDot = document.getElementById('cameraStatusDot');
+        const cameraStatusText = document.getElementById('cameraStatusText');
+
+        let robotState = {
+            isStanding: false,
+            isSitting: false,
+            isBalancing: false
+        };
+
+        const standButton = document.getElementById('standButton');
+        const sitButton = document.getElementById('sitButton');
+        const balanceButton = document.getElementById('balanceButton');
+
+        let lastFrameTime = performance.now();
+        let frameCount = 0;
+        let lastFpsUpdate = performance.now();
+        let pendingFrame = false;
+
+        let gamepadInterval = null;
+        let keyboardInterval = null;
+        let buttonStates = {};
+        const max_speed = 0.7;
+        const deadzone = 0.3;
+        let lastDisplayUpdate = 0;
+        const DISPLAY_UPDATE_INTERVAL = 100;
+
+        let keyboardState = {
+            x: 0,
+            y: 0,
+            z: 0
+        };
+
+        const bufferImage = new Image();
+        bufferImage.onload = function () {
+            videoFeed.src = bufferImage.src;
+            pendingFrame = false;
+        };
+
+        // Update the existing command send logic to add commands to the history
+        function sendMovementCommand(x_speed, y_speed, yaw_speed) {
+            const command = {
+                command: 'move',
+                x_speed: -x_speed * max_speed,
+                y_speed: -y_speed * max_speed,
+                yaw_speed: -yaw_speed * max_speed,
+            };
+            socket.emit('control_command', command);
+
+            // Add the command to the history
+            //addCommandToHistory(`Move: X=${command.x_speed}, Y=${command.y_speed}, Yaw=${command.yaw_speed}`);
+        }
+
+        function updateButtonStates() {
+            standButton.classList.toggle('active', robotState.isStanding && !robotState.isSitting && robotState.isBalancing);
+            sitButton.classList.toggle('active', robotState.isSitting && !robotState.isStanding);
+            balanceButton.classList.toggle('active', robotState.isBalancing);
+
+            // Highlight the correct button based on the state
+            if (currentState === 'stand') {
+                standButton.classList.add('active');
+                sitButton.classList.remove('active');
+            } else if (currentState === 'sit') {
+                sitButton.classList.add('active');
+                standButton.classList.remove('active');
+            }
+        }
+
+        socket.on('frame', (data) => {
+            if (pendingFrame) return;
+
+            const currentTime = performance.now();
+            if (currentTime - lastFrameTime < 66.67) return;
+
+            pendingFrame = true;
+            bufferImage.src = `data:image/jpeg;base64,${data.data}`;
+
+            const latency = Math.round((currentTime - lastFrameTime) * 0.8 +
+                parseInt(latencySpan.textContent) * 0.2);
+            latencySpan.textContent = latency;
+
+            frameCount++;
+            if (currentTime - lastFpsUpdate >= 1000) {
+                const fps = Math.round(frameCount * 1000 / (currentTime - lastFpsUpdate));
+                const currentFps = parseInt(fpsSpan.textContent) || 0;
+                fpsSpan.textContent = Math.round(fps * 0.3 + currentFps * 0.7);
+                frameCount = 0;
+                lastFpsUpdate = currentTime;
+            }
+
+            lastFrameTime = currentTime;
+        });
+
+        socket.on('connect_error', (error) => {
+            console.log('Connection Error:', error);
+            socket.io.opts.reconnectionDelay *= 2;
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            socket.io.opts.reconnectionDelay = 1000;
+            cameraStatusDot.style.backgroundColor = '#4CAF50';
+            cameraStatusText.textContent = 'Connected';
+        });
+
+        socket.on('disconnect', () => {
+            cameraStatusDot.style.backgroundColor = 'red';
+            cameraStatusText.textContent = 'Disconnected';
+        });
+
+        function applyDeadzone(value, deadzone) {
+            if (Math.abs(value) < deadzone) return 0;
+            return (value - Math.sign(value) * deadzone) / (1 - deadzone);
+        }
+
+        function updateGamepadDisplay(gamepad) {
+            const now = performance.now();
+            if (gamepad) {
+                if (gamepad.id !== 'Keyboard Control') {
+                    const x_axis = gamepad.axes[0];
+                    const y_axis = gamepad.axes[1];
+                    const z_axis = gamepad.axes[5];
+
+                    const x_speed = applyDeadzone(x_axis, deadzone);
+                    const y_speed = applyDeadzone(y_axis, deadzone);
+                    const yaw_speed = applyDeadzone(z_axis, deadzone);
+
+                    sendMovementCommand(x_speed, y_speed, yaw_speed);
+                    processGamepadButtons(gamepad);
+                }
+
+                if (now - lastDisplayUpdate >= DISPLAY_UPDATE_INTERVAL) {
+                    statusText.textContent = `Connected: ${gamepad.id}`;
+                    indicator.style.backgroundColor = '#4CAF50';
+                    lastDisplayUpdate = now;
+                }
+            } else {
+                statusText.textContent = 'No Gamepad Detected';
+                indicator.style.backgroundColor = '#dc3545';
+            }
+        }
+
+        function processGamepadButtons(gamepad) {
+            if (!gamepad.buttons) return;
+            const buttonMapping = {
+                0: 'stand_up',
+                1: 'stand_down',
+                2: 'balance_stand',
+                3: 'recovery_stand'
+            };
+
+            for (let i = 0; i < gamepad.buttons.length; i++) {
+                const button = gamepad.buttons[i];
+                if (button.pressed && !buttonStates[i]) {
+                    const command = buttonMapping[i];
+                    if (command) {
+                        socket.emit('control_command', { 'command': command });
+                        if (command === 'stand_up') {
+                            robotState.isStanding = true;
+                            robotState.isSitting = false;
+                            robotState.isBalancing = false;
+                        } else if (command === 'stand_down') {
+                            robotState.isStanding = false;
+                            robotState.isSitting = true;
+                            robotState.isBalancing = false;
+                        } else if (command === 'balance_stand') {
+                            robotState.isBalancing = true;
+                            robotState.isStanding = true;
+                            robotState.isSitting = false;
+                        }
+                        updateButtonStates();
+                    }
+                    buttonStates[i] = true;
+                } else if (!button.pressed && buttonStates[i]) {
+                    buttonStates[i] = false;
+                }
+            }
+        }
+
+        function pollGamepad() {
+            const gamepads = navigator.getGamepads();
+            for (const gamepad of gamepads) {
+                if (gamepad) {
+                    updateGamepadDisplay(gamepad);
+                    return;
+                }
+            }
+            updateGamepadDisplay(null);
+        }
+
+        function pollKeyboard() {
+            const gamepad = {
+                id: 'Keyboard Control',
+                axes: [
+                    keyboardState.x,
+                    keyboardState.y,
+                    0,
+                    0,
+                    0,
+                    keyboardState.z
+                ],
+                buttons: Array(10).fill({ pressed: false })
+            };
+            updateGamepadDisplay(gamepad);
+        }
+
+        function updateKeyDisplay(key, isPressed) {
+            const keyElement = document.getElementById(`key${key}`);
+            if (keyElement) {
+                if (isPressed) {
+                    keyElement.classList.add('active');
+                } else {
+                    keyElement.classList.remove('active');
+                }
+            }
+        }
+
+        // Add this function to append commands to the history
+        function addCommandToHistory(command) {
+            const commandHistoryList = document.getElementById('commandHistoryList');
+            const listItem = document.createElement('li');
+            listItem.textContent = command;
+            listItem.style.padding = '5px 10px';
+            listItem.style.borderBottom = '1px solid #ddd';
+            commandHistoryList.appendChild(listItem);
+
+            // Keep the latest command in view
+            commandHistoryList.scrollTop = commandHistoryList.scrollHeight;
+        }
+
+        // Function to execute commands
+        function executeCommand(command, isStop = false) {
+            // Default speed values
+            let x_speed = 0, y_speed = 0, yaw_speed = 0;
+
+            if (!isStop) {
+                switch (command) {
+                    case 'move-up':
+                        y_speed = -0.7;
+                        addCommandToHistory('Move: Up');
+                        break;
+                    case 'move-down':
+                        y_speed = 0.7;
+                        addCommandToHistory('Move: Down');
+                        break;
+                    case 'move-left':
+                        x_speed = -0.7;
+                        addCommandToHistory('Move: Left');
+                        break;
+                    case 'move-right':
+                        x_speed = 0.7;
+                        addCommandToHistory('Move: Right');
+                        break;
+                    case 'rotate-left':
+                        yaw_speed = -0.7;
+                        addCommandToHistory('Rotate: Left');
+                        break;
+                    case 'rotate-right':
+                        yaw_speed = 0.7;
+                        addCommandToHistory('Rotate: Right');
+                        break;
+                }
+            }
+
+            // Send the movement command to the server
+            sendMovementCommand(x_speed, y_speed, yaw_speed);
+        }
+
+        window.addEventListener("gamepadconnected", (e) => {
+            console.log("Gamepad connected:", e.gamepad);
+            addCommandToHistory('Gamepad Connected');
+            if (keyboardInterval) {
+                clearInterval(keyboardInterval);
+                keyboardInterval = null;
+            }
+            if (gamepadInterval) {
+                clearInterval(gamepadInterval);
+            }
+            gamepadInterval = setInterval(pollGamepad, 50);
+            buttonStates = {};
+            for (let i = 0; i < e.gamepad.buttons.length; i++) {
+                buttonStates[i] = false;
+            }
+        });
+
+        window.addEventListener("gamepaddisconnected", (e) => {
+            console.log("Gamepad disconnected:", e.gamepad);
+            addCommandToHistory('Gamepad Disconnected');
+            if (gamepadInterval) {
+                clearInterval(gamepadInterval);
+                gamepadInterval = null;
+            }
+            if (!keyboardInterval) {
+                keyboardInterval = setInterval(pollKeyboard, 50);
+            }
+            updateGamepadDisplay(null);
+            buttonStates = {};
+        });
+
+        document.addEventListener('keydown', (e) => {
+            switch (e.key.toLowerCase()) {
+                case 'w':
+                    keyboardState.y = -0.7;
+                    addCommandToHistory('Moving Forward');
+                    updateKeyDisplay('W', true);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 's':
+                    keyboardState.y = 0.7;
+                    addCommandToHistory('Moving Back');
+                    updateKeyDisplay('S', true);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'a':
+                    keyboardState.x = -0.7;
+                    addCommandToHistory('Moving Left');
+                    updateKeyDisplay('A', true);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'd':
+                    keyboardState.x = 0.7;
+                    addCommandToHistory('Moving Right');
+                    updateKeyDisplay('D', true);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'arrowleft':
+                    keyboardState.z = -0.7;
+                    addCommandToHistory('Rotating Left');
+                    updateKeyDisplay('ArrowLeft', true);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'arrowright':
+                    keyboardState.z = 0.7;
+                    addCommandToHistory('Rotating Right');
+                    updateKeyDisplay('ArrowRight', true);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'arrowup':
+                    socket.emit('control_command', { 'command': 'stand_up' });
+                    socket.emit('control_command', { 'command': 'balance_stand' });
+                    addCommandToHistory('Stand Up');
+                    robotState.isStanding = true;
+                    robotState.isSitting = false;
+                    robotState.isBalancing = true;
+                    updateButtonStates();
+                    break;
+                case 'arrowdown':
+                    socket.emit('control_command', { 'command': 'stand_down' });
+                    addCommandToHistory('Sit Down');
+                    robotState.isStanding = false;
+                    robotState.isSitting = true;
+                    robotState.isBalancing = false;
+                    updateButtonStates();
+                    break;
+                case 'b':
+                    socket.emit('control_command', { 'command': 'balance_stand' });
+                    addCommandToHistory('Balance Stand');
+                    robotState.isBalancing = true;
+                    robotState.isStanding = true;
+                    robotState.isSitting = false;
+                    updateButtonStates();
+                    break;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            switch (e.key.toLowerCase()) {
+                case 'w':
+                case 's':
+                    keyboardState.y = 0;
+                    updateKeyDisplay('W', false);
+                    updateKeyDisplay('S', false);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'a':
+                case 'd':
+                    keyboardState.x = 0;
+                    updateKeyDisplay('A', false);
+                    updateKeyDisplay('D', false);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'arrowleft':
+                case 'arrowright':
+                    keyboardState.z = 0;
+                    updateKeyDisplay('ArrowLeft', false);
+                    updateKeyDisplay('ArrowRight', false);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+            }
+        });
+
+        standButton.addEventListener('click', () => {
+            socket.emit('control_command', { 'command': 'stand_up' });
+            socket.emit('control_command', { 'command': 'balance_stand' });
+            robotState.isStanding = true;
+            robotState.isSitting = false;
+            robotState.isBalancing = true;
+            updateButtonStates();
+            addCommandToHistory('Stand Up');
+        });
+
+        sitButton.addEventListener('click', () => {
+            socket.emit('control_command', { 'command': 'stand_down' });
+            robotState.isStanding = false;
+            robotState.isSitting = true;
+            robotState.isBalancing = false;
+            updateButtonStates();
+            addCommandToHistory('Sit Down');
+        });
+
+        balanceButton.addEventListener('click', () => {
+            socket.emit('control_command', { 'command': 'balance_stand' });
+            robotState.isBalancing = true;
+            robotState.isStanding = true;
+            robotState.isSitting = false;
+            updateButtonStates();
+            addCommandToHistory('Balance Stand');
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const gamepads = navigator.getGamepads();
+            let gamepadFound = false;
+
+            for (const gamepad of gamepads) {
+                if (gamepad) {
+                    gamepadFound = true;
+                    gamepadInterval = setInterval(pollGamepad, 50);
+                    buttonStates = {};
+                    for (let i = 0; i < gamepad.buttons.length; i++) {
+                        buttonStates[i] = false;
+                    }
+                    break;
+                }
+            }
+
+            if (!gamepadFound) {
+                keyboardInterval = setInterval(pollKeyboard, 50);
+            }
+        });
+
+        // Add click listeners to all the keys
+        document.querySelectorAll('.key').forEach(keyElement => {
+            const command = keyElement.getAttribute('data-command');
+
+            // Mouse events
+            keyElement.addEventListener('mousedown', () => {
+                executeCommand(command);
+                keyElement.classList.add('active');
+            });
+
+            keyElement.addEventListener('mouseup', () => {
+                executeCommand(command, true); // Stop the action
+                keyElement.classList.remove('active');
+            });
+
+            keyElement.addEventListener('mouseleave', () => {
+                executeCommand(command, true); // Stop the action
+                keyElement.classList.remove('active');
+            });
+
+            // Touch events
+            keyElement.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Prevent default touch behavior
+                executeCommand(command); // Start the action
+                keyElement.classList.add('active'); // Visual feedback
+            });
+
+            keyElement.addEventListener('touchend', (e) => {
+                e.preventDefault(); // Prevent default touch behavior
+                executeCommand(command, true); // Stop the action
+                keyElement.classList.remove('active'); // Remove visual feedback
+            });
+
+            keyElement.addEventListener('touchcancel', (e) => {
+                e.preventDefault(); // Prevent default touch behavior
+                executeCommand(command, true); // Stop the action
+                keyElement.classList.remove('active'); // Remove visual feedback
+            });
+        });
+
+        // Add keyboard event listeners
+        document.addEventListener('keydown', (e) => {
+            const keyMap = {
+                'w': 'move-up',
+                's': 'move-down',
+                'a': 'move-left',
+                'd': 'move-right',
+                'arrowleft': 'rotate-left',
+                'arrowright': 'rotate-right',
+            };
+
+            const command = keyMap[e.key.toLowerCase()];
+            if (command) {
+                executeCommand(command);
+
+                // Visual feedback
+                const keyElement = document.getElementById(`key${e.key.toUpperCase()}`);
+                if (keyElement) keyElement.classList.add('active');
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            const keyMap = {
+                'w': 'move-up',
+                's': 'move-down',
+                'a': 'move-left',
+                'd': 'move-right',
+                'arrowleft': 'rotate-left',
+                'arrowright': 'rotate-right',
+            };
+
+            const command = keyMap[e.key.toLowerCase()];
+            if (command) {
+                executeCommand(command, true); // Stop the action
+
+                // Remove visual feedback
+                const keyElement = document.getElementById(`key${e.key.toUpperCase()}`);
+                if (keyElement) keyElement.classList.remove('active');
+            }
+        });
+
+        // Attach click listeners to buttons to save state
+        document.getElementById('standButton').addEventListener('click', () => {
+            localStorage.setItem('dogState', 'stand'); // Save state as 'stand'
+            updateButtonStates(); // Update the button highlights
+        });
+
+        document.getElementById('sitButton').addEventListener('click', () => {
+            localStorage.setItem('dogState', 'sit'); // Save state as 'sit'
+            updateButtonStates(); // Update the button highlights
+        });
+
+        // Restore state and highlight the correct button on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateButtonStates(); // Highlight the correct button based on stored state
+        });
+    </script>
+</body>
+</html>

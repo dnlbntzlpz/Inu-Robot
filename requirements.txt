@@ -1,0 +1,24 @@
+# Web Framework and Extensions
+Flask
+Flask-Login
+Flask-SQLAlchemy
+Flask-SocketIO
+Werkzeug
+
+# Database
+SQLAlchemy
+
+# WebSocket Dependencies
+python-socketio
+python-engineio
+simple-websocket
+
+# Video Processing
+opencv-python
+numpy
+
+# Stream
+pyzmq
+
+# Ngrok
+pyngrok

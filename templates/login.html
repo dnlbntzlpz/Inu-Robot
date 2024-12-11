@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Guide Dog Robot Assistance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            flex: 1.5;
+            background: linear-gradient(135deg, #0B0B2A, #1B1B4B);
+            color: white;
+            padding: 32px 32px 0 32px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 48px;
+            background: linear-gradient(90deg, #B347FF, #47F3FF);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-content {
+            text-align: center;
+            margin-bottom: 48px;
+            z-index: 1;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: 42px;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #B347FF, #47F3FF);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #B8B8FF;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .robot-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 45%;
+            max-height: 60vh;
+            display: flex;
+            align-items: flex-end;
+            z-index: 0;
+        }
+
+        .robot-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-title {
+            font-size: 32px;
+            margin-bottom: 32px;
+            text-align: center;
+            color: #1a1a2e;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1a1a2e;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #B347FF;
+            box-shadow: 0 0 0 2px rgba(179, 71, 255, 0.1);
+        }
+
+        .signin-button {
+            width: 100%;
+            padding: 12px;
+            background-image: linear-gradient(90deg, #B347FF, #47F3FF);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        .signin-button:hover {
+            background-image: linear-gradient(90deg, #C668FF, #66F5FF);
+            transform: translateY(-1px);
+        }
+
+        .signin-button:active {
+            transform: translateY(0);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 24px;
+            color: #666;
+        }
+
+        .register-link a {
+            color: #B347FF;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .register-link a:hover {
+            color: #47F3FF;
+        }
+
+        .flash-messages {
+            color: #94a3b8;
+            /* Changed from red to a softer color */
+            margin-bottom: 24px;
+            text-align: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            /* Optional gradient text effect */
+            background: linear-gradient(90deg, #B347FF, #47F3FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #47F3FF, transparent);
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .left-panel,
+            .right-panel {
+                flex: none;
+                width: 100%;
+            }
+
+            .robot-container {
+                width: 60%;
+                position: relative;
+                margin: 20px auto;
+            }
+
+            .hero-title {
+                font-size: 32px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .signin-button {
+                transform: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="left-panel">
+        <div class="logo">GUIDE DOG ROBOT</div>
+        <div class="hero-content">
+            <h1 class="hero-title">Robotic Guide Dog<br>Assistance</h1>
+            <p class="hero-text">Empowering independence through advanced robotic assistance. Our teleoperated Unitree
+                Go2
+                provides reliable guide dog services for people with disabilities, offering freedom and confidence in
+                daily navigation.</p>
+        </div>
+        <div class="robot-container">
+            <img src="{{ url_for('static', filename='images/go2_robot.png') }}" alt="Unitree Go2 Robot"
+                class="robot-image">
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="login-container">
+            <h2 class="login-title">Sign in to Robot Control</h2>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="flash-messages">
+                {{ messages[0] }}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="username">Username or Email</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="signin-button">Sign In</button>
+            </form>
+
+            <div class="register-link">
+                Don't have an account? <a href="{{ url_for('register') }}">Sign up</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

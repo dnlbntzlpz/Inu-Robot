@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Control Panel</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body {
+            margin: 0;
+            background-color: #292929;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(90deg, #9C27B0, #4CAF50);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .button {
+            padding: 8px 16px;
+            background: linear-gradient(90deg, #9C27B0, #4CAF50);
+            border-radius: 20px;
+            border: none;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 2fr 1.3fr;
+            grid-gap: 20px;
+        }
+
+        .panel {
+            background: #1F1F1F;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .panel h2 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .video-section {
+            position: relative;
+        }
+
+        .video-feed {
+            background-color: #000;
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .video-feed img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: red;
+            border-radius: 50%;
+        }
+
+        .video-stats {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(31,31,31,0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #ccc;
+            display: flex;
+            gap: 10px;
+        }
+
+        .controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .status-panel, .keyboard-panel, .robot-actions {
+            background: #2C2C2C;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .status-panel h3, .keyboard-panel h3, .robot-actions h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #9C27B0;
+            font-weight: 600;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #bbb;
+            margin-bottom: 10px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #dc3545;
+        }
+
+        .keyboard-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .keyboard-row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .arrow-keys {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .key {
+            width: 35px;
+            height: 35px;
+            background: #1B1B1B;
+            border: 2px solid #3C3C3C;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: monospace;
+            font-size: 14px;
+            color: #ccc;
+            transition: all 0.15s ease;
+        }
+
+        .key.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+            transform: translateY(1px);
+        }
+
+        .actions-grid {
+            display: flex;
+            gap: 10px;
+        }
+
+        .status-button {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #1B1B1B;
+            border: 2px solid #3C3C3C;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .status-button svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 8px;
+            color: #ccc;
+            transition: color 0.3s ease;
+        }
+
+        .status-button .status-text {
+            color: #ccc;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        .status-button .key-hint {
+            color: #666;
+            font-size: 0.8rem;
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+        }
+
+        .status-button.active {
+            background: linear-gradient(135deg, #9C27B0, #4CAF50);
+            border-color: #4CAF50;
+        }
+
+        .status-button.active svg,
+        .status-button.active .status-text {
+            color: white;
+        }
+
+        .status-button.active .key-hint {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Robot Teleoperation System</h1>
+            <a href="{{ url_for('index') }}" class="button">Home</a>
+        </div>
+
+        <div class="dashboard">
+            <div class="panel video-section">
+                <div class="camera-status">
+                    <div class="status-dot" id="cameraStatusDot"></div>
+                    <span id="cameraStatusText">Disconnected</span>
+                </div>
+                <div class="video-feed">
+                    <img id="videoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg==" alt="Video stream">
+                    <div class="video-stats">
+                        <span>Latency: <span id="latency">0</span>ms</span>
+                        <span>FPS: <span id="fps">0</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <div class="status-panel">
+                    <h3>Controller Status</h3>
+                    <div class="connection-status">
+                        <div class="status-indicator" id="joystickIndicator"></div>
+                        <span id="joystickStatus">No Gamepad Detected</span>
+                    </div>
+                </div>
+
+                <div class="keyboard-panel">
+                    <h3>Keyboard Controls</h3>
+                    <div class="keyboard-controls">
+                        <div class="keyboard-row">
+                            <div class="key" id="keyW">W</div>
+                        </div>
+                        <div class="keyboard-row">
+                            <div class="key" id="keyA">A</div>
+                            <div class="key" id="keyS">S</div>
+                            <div class="key" id="keyD">D</div>
+                        </div>
+                        <div class="arrow-keys">
+                            <div class="key" id="keyArrowLeft">?</div>
+                            <div class="key" id="keyArrowRight">?</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="robot-actions">
+                    <h3>Robot Actions</h3>
+                    <div class="actions-grid">
+                        <div class="status-button" id="standButton" title="Press ? to stand">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                            </svg>
+                            <div class="status-text">Stand Up</div>
+                            <div class="key-hint">?</div>
+                        </div>
+                        <div class="status-button" id="sitButton" title="Press ? to sit">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 19l9 2-9-6-9 6 9-2zm0 0V5"/>
+                            </svg>
+                            <div class="status-text">Sit Down</div>
+                            <div class="key-hint">?</div>
+                        </div>
+                        <div class="status-button" id="balanceButton" title="Press B to balance">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div class="status-text">Balance</div>
+                            <div class="key-hint">B</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io({
+            transports: ['websocket'],
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 20000
+        });
+
+        const videoFeed = document.getElementById('videoFeed');
+        const latencySpan = document.getElementById('latency');
+        const fpsSpan = document.getElementById('fps');
+        const indicator = document.getElementById('joystickIndicator');
+        const statusText = document.getElementById('joystickStatus');
+        const cameraStatusDot = document.getElementById('cameraStatusDot');
+        const cameraStatusText = document.getElementById('cameraStatusText');
+
+        let robotState = {
+            isStanding: false,
+            isSitting: false,
+            isBalancing: false
+        };
+
+        const standButton = document.getElementById('standButton');
+        const sitButton = document.getElementById('sitButton');
+        const balanceButton = document.getElementById('balanceButton');
+
+        let lastFrameTime = performance.now();
+        let frameCount = 0;
+        let lastFpsUpdate = performance.now();
+        let pendingFrame = false;
+
+        let gamepadInterval = null;
+        let keyboardInterval = null;
+        let buttonStates = {};
+        const max_speed = 0.7;
+        const deadzone = 0.3;
+        let lastDisplayUpdate = 0;
+        const DISPLAY_UPDATE_INTERVAL = 100;
+
+        let keyboardState = {
+            x: 0,
+            y: 0,
+            z: 0
+        };
+
+        const bufferImage = new Image();
+        bufferImage.onload = function () {
+            videoFeed.src = bufferImage.src;
+            pendingFrame = false;
+        };
+
+        function sendMovementCommand(x_speed, y_speed, yaw_speed) {
+            socket.emit('control_command', {
+                'command': 'move',
+                'x_speed': -x_speed * max_speed,
+                'y_speed': -y_speed * max_speed,
+                'yaw_speed': -yaw_speed * max_speed
+            });
+        }
+
+        function updateButtonStates() {
+            standButton.classList.toggle('active', robotState.isStanding && !robotState.isSitting && robotState.isBalancing);
+            sitButton.classList.toggle('active', robotState.isSitting && !robotState.isStanding);
+            balanceButton.classList.toggle('active', robotState.isBalancing);
+        }
+
+        socket.on('frame', (data) => {
+            if (pendingFrame) return;
+
+            const currentTime = performance.now();
+            if (currentTime - lastFrameTime < 66.67) return;
+
+            pendingFrame = true;
+            bufferImage.src = `data:image/jpeg;base64,${data.data}`;
+
+            const latency = Math.round((currentTime - lastFrameTime) * 0.8 +
+                parseInt(latencySpan.textContent) * 0.2);
+            latencySpan.textContent = latency;
+
+            frameCount++;
+            if (currentTime - lastFpsUpdate >= 1000) {
+                const fps = Math.round(frameCount * 1000 / (currentTime - lastFpsUpdate));
+                const currentFps = parseInt(fpsSpan.textContent) || 0;
+                fpsSpan.textContent = Math.round(fps * 0.3 + currentFps * 0.7);
+                frameCount = 0;
+                lastFpsUpdate = currentTime;
+            }
+
+            lastFrameTime = currentTime;
+        });
+
+        socket.on('connect_error', (error) => {
+            console.log('Connection Error:', error);
+            socket.io.opts.reconnectionDelay *= 2;
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            socket.io.opts.reconnectionDelay = 1000;
+            cameraStatusDot.style.backgroundColor = '#4CAF50';
+            cameraStatusText.textContent = 'Connected';
+        });
+
+        socket.on('disconnect', () => {
+            cameraStatusDot.style.backgroundColor = 'red';
+            cameraStatusText.textContent = 'Disconnected';
+        });
+
+        function applyDeadzone(value, deadzone) {
+            if (Math.abs(value) < deadzone) return 0;
+            return (value - Math.sign(value) * deadzone) / (1 - deadzone);
+        }
+
+        function updateGamepadDisplay(gamepad) {
+            const now = performance.now();
+            if (gamepad) {
+                if (gamepad.id !== 'Keyboard Control') {
+                    const x_axis = gamepad.axes[0];
+                    const y_axis = gamepad.axes[1];
+                    const z_axis = gamepad.axes[5];
+
+                    const x_speed = applyDeadzone(x_axis, deadzone);
+                    const y_speed = applyDeadzone(y_axis, deadzone);
+                    const yaw_speed = applyDeadzone(z_axis, deadzone);
+
+                    sendMovementCommand(x_speed, y_speed, yaw_speed);
+                    processGamepadButtons(gamepad);
+                }
+
+                if (now - lastDisplayUpdate >= DISPLAY_UPDATE_INTERVAL) {
+                    statusText.textContent = `Connected: ${gamepad.id}`;
+                    indicator.style.backgroundColor = '#4CAF50';
+                    lastDisplayUpdate = now;
+                }
+            } else {
+                statusText.textContent = 'No Gamepad Detected';
+                indicator.style.backgroundColor = '#dc3545';
+            }
+        }
+
+        function processGamepadButtons(gamepad) {
+            if (!gamepad.buttons) return;
+            const buttonMapping = {
+                0: 'stand_up',
+                1: 'stand_down',
+                2: 'balance_stand',
+                3: 'recovery_stand'
+            };
+
+            for (let i = 0; i < gamepad.buttons.length; i++) {
+                const button = gamepad.buttons[i];
+                if (button.pressed && !buttonStates[i]) {
+                    const command = buttonMapping[i];
+                    if (command) {
+                        socket.emit('control_command', { 'command': command });
+                        if (command === 'stand_up') {
+                            robotState.isStanding = true;
+                            robotState.isSitting = false;
+                            robotState.isBalancing = false;
+                        } else if (command === 'stand_down') {
+                            robotState.isStanding = false;
+                            robotState.isSitting = true;
+                            robotState.isBalancing = false;
+                        } else if (command === 'balance_stand') {
+                            robotState.isBalancing = true;
+                            robotState.isStanding = true;
+                            robotState.isSitting = false;
+                        }
+                        updateButtonStates();
+                    }
+                    buttonStates[i] = true;
+                } else if (!button.pressed && buttonStates[i]) {
+                    buttonStates[i] = false;
+                }
+            }
+        }
+
+        function pollGamepad() {
+            const gamepads = navigator.getGamepads();
+            for (const gamepad of gamepads) {
+                if (gamepad) {
+                    updateGamepadDisplay(gamepad);
+                    return;
+                }
+            }
+            updateGamepadDisplay(null);
+        }
+
+        function pollKeyboard() {
+            const gamepad = {
+                id: 'Keyboard Control',
+                axes: [
+                    keyboardState.x,
+                    keyboardState.y,
+                    0,
+                    0,
+                    0,
+                    keyboardState.z
+                ],
+                buttons: Array(10).fill({ pressed: false })
+            };
+            updateGamepadDisplay(gamepad);
+        }
+
+        function updateKeyDisplay(key, isPressed) {
+            const keyElement = document.getElementById(`key${key}`);
+            if (keyElement) {
+                if (isPressed) {
+                    keyElement.classList.add('active');
+                } else {
+                    keyElement.classList.remove('active');
+                }
+            }
+        }
+
+        window.addEventListener("gamepadconnected", (e) => {
+            console.log("Gamepad connected:", e.gamepad);
+            if (keyboardInterval) {
+                clearInterval(keyboardInterval);
+                keyboardInterval = null;
+            }
+            if (gamepadInterval) {
+                clearInterval(gamepadInterval);
+            }
+            gamepadInterval = setInterval(pollGamepad, 50);
+            buttonStates = {};
+            for (let i = 0; i < e.gamepad.buttons.length; i++) {
+                buttonStates[i] = false;
+            }
+        });
+
+        window.addEventListener("gamepaddisconnected", (e) => {
+            console.log("Gamepad disconnected:", e.gamepad);
+            if (gamepadInterval) {
+                clearInterval(gamepadInterval);
+                gamepadInterval = null;
+            }
+            if (!keyboardInterval) {
+                keyboardInterval = setInterval(pollKeyboard, 50);
+            }
+            updateGamepadDisplay(null);
+            buttonStates = {};
+        });
+
+        document.addEventListener('keydown', (e) => {
+            switch (e.key.toLowerCase()) {
+                case 'w':
+                    keyboardState.y = -0.7;
+                    updateKeyDisplay('W', true);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 's':
+                    keyboardState.y = 0.7;
+                    updateKeyDisplay('S', true);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'a':
+                    keyboardState.x = -0.7;
+                    updateKeyDisplay('A', true);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'd':
+                    keyboardState.x = 0.7;
+                    updateKeyDisplay('D', true);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'arrowleft':
+                    keyboardState.z = -0.7;
+                    updateKeyDisplay('ArrowLeft', true);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'arrowright':
+                    keyboardState.z = 0.7;
+                    updateKeyDisplay('ArrowRight', true);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'arrowup':
+                    socket.emit('control_command', { 'command': 'stand_up' });
+                    socket.emit('control_command', { 'command': 'balance_stand' });
+                    robotState.isStanding = true;
+                    robotState.isSitting = false;
+                    robotState.isBalancing = true;
+                    updateButtonStates();
+                    break;
+                case 'arrowdown':
+                    socket.emit('control_command', { 'command': 'stand_down' });
+                    robotState.isStanding = false;
+                    robotState.isSitting = true;
+                    robotState.isBalancing = false;
+                    updateButtonStates();
+                    break;
+                case 'b':
+                    socket.emit('control_command', { 'command': 'balance_stand' });
+                    robotState.isBalancing = true;
+                    robotState.isStanding = true;
+                    robotState.isSitting = false;
+                    updateButtonStates();
+                    break;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            switch (e.key.toLowerCase()) {
+                case 'w':
+                case 's':
+                    keyboardState.y = 0;
+                    updateKeyDisplay('W', false);
+                    updateKeyDisplay('S', false);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'a':
+                case 'd':
+                    keyboardState.x = 0;
+                    updateKeyDisplay('A', false);
+                    updateKeyDisplay('D', false);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+                case 'arrowleft':
+                case 'arrowright':
+                    keyboardState.z = 0;
+                    updateKeyDisplay('ArrowLeft', false);
+                    updateKeyDisplay('ArrowRight', false);
+                    sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
+                    break;
+            }
+        });
+
+        standButton.addEventListener('click', () => {
+            socket.emit('control_command', { 'command': 'stand_up' });
+            socket.emit('control_command', { 'command': 'balance_stand' });
+            robotState.isStanding = true;
+            robotState.isSitting = false;
+            robotState.isBalancing = true;
+            updateButtonStates();
+        });
+
+        sitButton.addEventListener('click', () => {
+            socket.emit('control_command', { 'command': 'stand_down' });
+            robotState.isStanding = false;
+            robotState.isSitting = true;
+            robotState.isBalancing = false;
+            updateButtonStates();
+        });
+
+        balanceButton.addEventListener('click', () => {
+            socket.emit('control_command', { 'command': 'balance_stand' });
+            robotState.isBalancing = true;
+            robotState.isStanding = true;
+            robotState.isSitting = false;
+            updateButtonStates();
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const gamepads = navigator.getGamepads();
+            let gamepadFound = false;
+
+            for (const gamepad of gamepads) {
+                if (gamepad) {
+                    gamepadFound = true;
+                    gamepadInterval = setInterval(pollGamepad, 50);
+                    buttonStates = {};
+                    for (let i = 0; i < gamepad.buttons.length; i++) {
+                        buttonStates[i] = false;
+                    }
+                    break;
+                }
+            }
+
+            if (!gamepadFound) {
+                keyboardInterval = setInterval(pollKeyboard, 50);
+            }
+        });
+    </script>
+</body>
+</html>
