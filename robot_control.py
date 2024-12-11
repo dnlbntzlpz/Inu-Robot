@@ -93,6 +93,6 @@ class RobotControl:
         if self.client:
             self.client.SwitchGait(gait_type)
 
-    def sit_down(self):
+    def sit(self):
         if self.client:
             self.client.Sit()
