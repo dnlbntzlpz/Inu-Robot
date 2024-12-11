@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot Control Panel</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <style>
-        body {
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Robot Control Panel
+  </title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js">
+  </script>
+  <style>
+   body {
             margin: 0;
             background-color: #f9f9f9;
             color: #333;
@@ -462,118 +465,184 @@
                 height: auto; /* Adjust height proportionally */
             }
         }
-    </style>
-</head>
-
-<body>
-    <div class="main-container">
-        <!-- Left Section: Video Feed and Status Dashboard -->
-        <div class="left-section">
-            <div class="video-feed">
-                <img id="videoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg==" alt="Video stream">
-            </div>
-            
-            <div class="status-dashboard">
-                <h4>Status Dashboard</h4>
-                <ul>
-                    <li><strong>Latency:</strong> <span id="status-latency">-- ms</span></li>
-                    <li><strong>FPS:</strong> <span id="status-fps">--</span></li>
-                    <li><strong>Battery:</strong> <span id="status-battery">--%</span></li>
-                    <li><strong>Temperature:</strong> <span id="status-temperature">-- °C</span></li>
-                    <li><strong>Connection:</strong> <span id="status-connection">--</span></li>
-                </ul>
-                <div class="controller-status">
-                    <h4>Controller Status</h4>
-                    <div class="connection-status">
-                        <div class="status-indicator" id="joystickIndicator"></div>
-                        <span id="joystickStatus">No Gamepad Detected</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    
-        <!-- Middle Section: Controls and Robot Actions -->
-        <div class="middle-section">
-            <div class="keyboard-controls">
-                <h3>Keyboard</h3>
-                <div class="keyboard-grid">
-                    <!-- W Key -->
-                    <div class="key-row">
-                        <div class="key" id="keyW">W</div>
-                    </div>
-                    <!-- A S D Keys -->
-                    <div class="key-row">
-                        <div class="key" id="keyA">A</div>
-                        <div class="key" id="keyS">S</div>
-                        <div class="key" id="keyD">D</div>
-                    </div>
-                    <!-- Arrow Keys -->
-                    <div class="key-row">
-                        <div class="key" id="keyArrowLeft">←</div>
-                        <div class="key" id="keyArrowRight">→</div>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="robot-actions">
-                <h3>Robot Actions</h3>
-                <div class="actions-grid">
-                    <!-- Stand Up Button -->
-                    <div class="status-button" id="standButton" title="Press ↑ to stand">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M12 5l-7 7h4v7h6v-7h4l-7-7z"/>
-                        </svg>
-                        <div class="status-text">Stand Up</div>
-                        <div class="key-hint">↑</div>
-                    </div>
-            
-                    <!-- Lay Down Button -->
-                    <div class="status-button" id="layButton" title="Press ↓ to lay down">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M12 19l7-7h-4v-7h-6v7H5l7 7z"/>
-                        </svg>
-                        <div class="status-text">Lay Down</div>
-                        <div class="key-hint">↓</div>
-                    </div>
-            
-                    <!-- Sit Down Button -->
-                    <div class="status-button" id="sitButton" title="Press X to sit down">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M12 12l7 7h-4v-4h-6v4H5l7-7z"/>
-                        </svg>
-                        <div class="status-text">Sit Down</div>
-                        <div class="key-hint">X</div>
-                    </div>
-            
-                    <!-- Balance Button -->
-                    <div class="status-button" id="balanceButton" title="Press B to balance">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <div class="status-text">Balance</div>
-                        <div class="key-hint">B</div>
-                    </div>
-                </div>
-            </div>
-            
-    
-        <!-- Right Section: Command History -->
-        <div class="right-section">
-            <div class="status-panel">
-                <h3>Command History</h3>
-                <ul id="commandHistoryList" style="list-style-type: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto;">
-                    <!-- Commands will be appended here dynamically -->
-                </ul>
-            </div>
-        </div>
+  </style>
+ </head>
+ <body>
+  <div class="main-container">
+   <!-- Left Section: Video Feed and Status Dashboard -->
+   <div class="left-section">
+    <div class="video-feed">
+     <img alt="Video stream" id="videoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg=="/>
     </div>
-    
-    <script>
-        const socket = io({
+    <div class="status-dashboard">
+     <h4>
+      Status Dashboard
+     </h4>
+     <ul>
+      <li>
+       <strong>
+        Latency:
+       </strong>
+       <span id="status-latency">
+        -- ms
+       </span>
+      </li>
+      <li>
+       <strong>
+        FPS:
+       </strong>
+       <span id="status-fps">
+        --
+       </span>
+      </li>
+      <li>
+       <strong>
+        Battery:
+       </strong>
+       <span id="status-battery">
+        --%
+       </span>
+      </li>
+      <li>
+       <strong>
+        Temperature:
+       </strong>
+       <span id="status-temperature">
+        -- °C
+       </span>
+      </li>
+      <li>
+       <strong>
+        Connection:
+       </strong>
+       <span id="status-connection">
+        --
+       </span>
+      </li>
+     </ul>
+     <div class="controller-status">
+      <h4>
+       Controller Status
+      </h4>
+      <div class="connection-status">
+       <div class="status-indicator" id="joystickIndicator">
+       </div>
+       <span id="joystickStatus">
+        No Gamepad Detected
+       </span>
+      </div>
+     </div>
+    </div>
+   </div>
+   <!-- Middle Section: Controls and Robot Actions -->
+   <div class="middle-section">
+    <div class="keyboard-controls">
+     <h3>
+      Keyboard
+     </h3>
+     <div class="keyboard-grid">
+      <!-- W Key -->
+      <div class="key-row">
+       <div class="key" id="keyW">
+        W
+       </div>
+      </div>
+      <!-- A S D Keys -->
+      <div class="key-row">
+       <div class="key" id="keyA">
+        A
+       </div>
+       <div class="key" id="keyS">
+        S
+       </div>
+       <div class="key" id="keyD">
+        D
+       </div>
+      </div>
+      <!-- Arrow Keys -->
+      <div class="key-row">
+       <div class="key" id="keyArrowLeft">
+        ←
+       </div>
+       <div class="key" id="keyArrowRight">
+        →
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="robot-actions">
+     <h3>
+      Robot Actions
+     </h3>
+     <div class="actions-grid">
+      <!-- Stand Up Button -->
+      <div class="status-button" id="standButton" title="Press ↑ to stand">
+       <svg fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 5l-7 7h4v7h6v-7h4l-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        </path>
+       </svg>
+       <div class="status-text">
+        Stand Up
+       </div>
+       <div class="key-hint">
+        ↑
+       </div>
+      </div>
+      <!-- Lay Down Button -->
+      <div class="status-button" id="layButton" title="Press ↓ to lay down">
+       <svg fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 19l7-7h-4v-7h-6v7H5l7 7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        </path>
+       </svg>
+       <div class="status-text">
+        Lay Down
+       </div>
+       <div class="key-hint">
+        ↓
+       </div>
+      </div>
+      <!-- Sit Down Button -->
+      <div class="status-button" id="sitButton" title="Press X to sit down">
+       <svg fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 12l7 7h-4v-4h-6v4H5l7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        </path>
+       </svg>
+       <div class="status-text">
+        Sit Down
+       </div>
+       <div class="key-hint">
+        X
+       </div>
+      </div>
+      <!-- Balance Button -->
+      <div class="status-button" id="balanceButton" title="Press B to balance">
+       <svg fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        </path>
+       </svg>
+       <div class="status-text">
+        Balance
+       </div>
+       <div class="key-hint">
+        B
+       </div>
+      </div>
+     </div>
+    </div>
+    <!-- Right Section: Command History -->
+    <div class="right-section">
+     <div class="status-panel">
+      <h3>
+       Command History
+      </h3>
+      <ul id="commandHistoryList" style="list-style-type: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto;">
+       <!-- Commands will be appended here dynamically -->
+      </ul>
+     </div>
+    </div>
+   </div>
+   <script>
+    const socket = io({
             transports: ['websocket'],
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
@@ -1202,8 +1271,7 @@
             document.getElementById('status-temperature').textContent = `${statusData.temperature || '--'} °C`;
             document.getElementById('status-connection').textContent = statusData.connection || '--';
         }
-
-        
-    </script>
-</body>
+   </script>
+  </div>
+ </body>
 </html>
