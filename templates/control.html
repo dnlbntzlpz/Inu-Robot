@@ -90,9 +90,12 @@
             gap: 20px; /* Add space between sections */
         }
 
-        .left-section, .middle-section, .right-section {
-            flex: 1; /* Make each section take equal space */
-            min-width: 200px; /* Ensure minimum width for smaller screens */
+        .left-section,
+        .middle-section,
+        .right-section {
+            flex: 1; /* Allow each section to take equal space */
+            min-width: 300px; /* Ensure sections do not shrink too small */
+            max-width: 33%; /* Prevent sections from growing too large */
         }
 
         .left-section {
@@ -100,7 +103,9 @@
         }
 
         .middle-section {
-            text-align: center; /* Center align actions */
+            display: flex; /* Center-align Robot Actions */
+            justify-content: center;
+            text-align: center;
         }
 
         .right-section {
@@ -130,23 +135,26 @@
     
         /* Video Feed Styling */
         .video-feeds {
-            display: flex;
-            width: 100%; /* Full width */
-            justify-content: space-around; /* Space between feeds */
-            gap: 20px; /* Add space between video feeds */
+            display: flex; /* Align feeds side by side */
+            justify-content: center; /* Center-align the feeds */
+            gap: 20px; /* Add space between feeds */
             padding: 20px;
         }
 
         .video-feed {
-            flex: 1;
-            max-width: 45%; /* Adjust width for balanced layout */
-            text-align: center;
+            /*16:9 aspect ratio*/
+            width: 426px; /* Fixed width */
+            height: 240px; /* Fixed height */
+            text-align: center; /* Center-align labels */
+            overflow: hidden; /* Prevent overflow if content exceeds container */
         }
+
         .video-feed img {
-            width: 100%; /* Full width of the container */
-            height: auto; /* Maintain aspect ratio */
+            width: 100%; /* Scale image to fill the container width */
+            height: 100%; /* Scale image to fill the container height */
+            object-fit: cover; /* Maintain aspect ratio without distortion */
             border-radius: 8px; /* Optional: Rounded corners */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for better appearance */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Shadow for visuals */
         }
  
         .video-label {
@@ -289,11 +297,12 @@
         }
 
         .controls-container {
-            display: flex; /* Flexbox for horizontal layout */
-            justify-content: space-between; /* Space out the sections */
-            gap: 20px; /* Add space between the sections */
-            align-items: flex-start; /* Align items at the top */
-            width: 100%; /* Full width */
+            display: flex; /* Arrange sections in a row */
+            justify-content: space-between; /* Distribute space evenly */
+            align-items: flex-start; /* Align sections at the top */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 20px; /* Add space between sections */
+            padding: 20px;
         }
 
         .controller-status-container {
@@ -330,10 +339,12 @@
         }
 
         .robot-actions {
+            width: 100%; /* Full width within the middle section */
+            max-width: 400px; /* Prevent excessive size */
             padding: 20px;
-            background: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: #fff; /* Ensure a consistent background */
+            border-radius: 8px; /* Optional: Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Shadow */
         }
     
         .status-panel h3, .keyboard-panel h3 {
@@ -540,10 +551,27 @@
             color: #333;
         }
     
+        /* Media Query for Smaller Screens */
         @media (max-width: 768px) {
             .video-feed {
                 width: 100%; /* Take the full width of the screen */
                 height: auto; /* Adjust height proportionally */
+            }
+
+            .controls-container {
+                flex-direction: column; /* Stack sections vertically */
+                align-items: center; /* Center-align for smaller screens */
+            }
+
+            .left-section,
+            .middle-section,
+            .right-section {
+                max-width: 100%; /* Full width for each section */
+                text-align: center;
+            }
+
+            .robot-actions {
+                margin: 0 auto; /* Center the Robot Actions */
             }
         }
   </style>
@@ -583,7 +611,12 @@
                 <div class="status-item">
                     <span class="status-icon">⏱️</span>
                     <span class="status-label">Latency</span>
-                    <span class="status-value" id="status-latency">130ms</span>
+                    <span class="status-value" id="status-latency">--ms</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">🎥</span>
+                    <span class="status-label">FPS</span>
+                    <span class="status-value" id="status-fps">--</span>
                 </div>
                 <div class="status-item">
                     <span class="status-icon">📶</span>
@@ -810,12 +843,11 @@
             bufferImage.src = `data:image/jpeg;base64,${data.data}`;
 
             // Calculate Latency
-            const latency = Math.round((currentTime - lastFrameTime) * 0.8 +
-                parseInt(statusData.latency || 0) * 0.2);
-            statusData.latency = latency;
+            const currentLatency = Math.round(currentTime - lastFrameTime);
+            statusData.latency = currentLatency;
 
             // Update Latency in Dashboard
-            document.getElementById('status-latency').textContent = `${latency} ms`;
+            //document.getElementById('status-latency').textContent = `${statusData.latency} ms`;
 
             frameCount++;
             if (currentTime - lastFpsUpdate >= 1000) {
@@ -1360,8 +1392,6 @@
             document.getElementById('status-temperature').textContent = `${statusData.temperature || '--'} °C`;
             document.getElementById('status-connection').textContent = statusData.connection || '--';
         }
-
-
 
    </script>
   </div>
