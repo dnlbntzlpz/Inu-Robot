@@ -391,21 +391,19 @@
         }
     
         .status-button {
-            background: #fff;
-            padding: 10px;
-            border: 2px solid #ccc;
-            border-radius: 8px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.15s ease;
-            cursor: pointer;
+            flex-direction: column; /* Stack the content vertically */
+            align-items: center; /* Center align all content */
+            justify-content: center; /* Center align vertically */
+            background: #f9f9f9; /* Button background color */
+            padding: 15px; /* Add padding */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            transition: background-color 0.2s ease, transform 0.1s ease; /* Hover/active effect */
         }
 
         .status-button:hover {
-            background: #f1f1f1;
-            border-color: #4caf50;
+            background: #e6e6e6; /* Lighter background on hover */
         }
     
         .status-button svg {
@@ -427,11 +425,10 @@
         }
     
         .status-button .key-hint {
-            color: #999;
-            font-size: 0.8rem;
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
+            font-size: 0.9rem;
+            margin-top: 5px; /* Space between status-text and hint */
+            color: #666;
+            font-style: italic; /* Optional: Make the hint italicized */
         }
 
         .key-hint {
@@ -521,11 +518,12 @@
                 <li><strong>Battery:</strong> <span id="status-battery">--%</span></li>
                 <li><strong>Temperature:</strong> <span id="status-temperature">-- °C</span></li>
                 <li><strong>Connection:</strong> <span id="status-connection">--</span></li>
+                <li><strong>Controller Status:</strong> <span id="status-controller">No Gamepad Detected</span></li>
             </ul>
         </div>
     </div>
     
-    <div class="controller-status-container">
+    <!-- <div class="controller-status-container">
         <div class="controller-status">
             <h4>Controller Status</h4>
             <div class="connection-status">
@@ -533,7 +531,7 @@
                 <span id="joystickStatus">No Gamepad Detected</span>
             </div>
         </div>
-    </div>
+    </div> -->
 
   <div class="main-container">
    <div class="left-section">
@@ -1239,6 +1237,39 @@
             updateButtonStates();
         });
 
+        // Controller status DOM element
+        const controllerStatusElement = document.getElementById('status-controller');
+
+        // Function to update the controller status
+        function updateControllerStatus(connected) {
+            if (connected) {
+                controllerStatusElement.textContent = 'Connected';
+                controllerStatusElement.style.color = 'green'; // Optional: Add color for visual feedback
+            } else {
+                controllerStatusElement.textContent = 'No Gamepad Detected';
+                controllerStatusElement.style.color = 'red'; // Optional: Add color for visual feedback
+            }
+        }
+
+        // Monitor gamepad connection and disconnection
+        window.addEventListener('gamepadconnected', () => {
+            updateControllerStatus(true);
+        });
+
+        window.addEventListener('gamepaddisconnected', () => {
+            updateControllerStatus(false);
+        });
+
+        // Initial check for connected gamepads
+        function checkInitialGamepadStatus() {
+            const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+            const isConnected = Array.from(gamepads).some((gp) => gp !== null);
+            updateControllerStatus(isConnected);
+        }
+
+        // Run the initial check when the page loads
+        document.addEventListener('DOMContentLoaded', checkInitialGamepadStatus);
+
         //Status Dashboard
         const statusData = {
             latency: '--',
@@ -1256,6 +1287,8 @@
             document.getElementById('status-temperature').textContent = `${statusData.temperature || '--'} °C`;
             document.getElementById('status-connection').textContent = statusData.connection || '--';
         }
+
+
 
    </script>
   </div>
