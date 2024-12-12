@@ -85,33 +85,26 @@
 
         .main-container {
             display: flex;
-            flex-direction: row; /* Horizontal layout */
-            justify-content: space-between;
-            align-items: flex-start; /* Align items at the top */
-            gap: 20px; /* Space between sections */
-            padding: 20px;
+            flex-direction: column; /* Stack sections vertically */
+            align-items: center; /* Center-align content */
+            gap: 20px; /* Add space between sections */
+        }
+
+        .left-section, .middle-section, .right-section {
+            flex: 1; /* Make each section take equal space */
+            min-width: 200px; /* Ensure minimum width for smaller screens */
         }
 
         .left-section {
-            flex: 2; /* Left section takes 2/3 of the width */
-            display: flex;
-            flex-direction: column;
-            gap: 20px; /* Space between video feed and status dashboard */
+            text-align: left; /* Align text to the left */
         }
 
         .middle-section {
-            flex: 2; /* Middle section takes 2/3 of the width */
-            display: flex;
-            flex-direction: column;
-            gap: 20px; /* Space between controls and robot actions */
+            text-align: center; /* Center align actions */
         }
 
         .right-section {
-            flex: 1; /* Right section takes 1/3 of the width */
-            display: flex;
-            flex-direction: column;
-            gap: 20px; /* Space between items */
-            align-items: flex-start; /* Align command history to the top */
+            text-align: right; /* Align text to the right */
         }
 
         /* Command History */
@@ -137,19 +130,18 @@
     
         /* Video Feed Styling */
         .video-feeds {
-            display: flex; /* Align feeds side by side */
+            display: flex;
             width: 100%; /* Full width */
-            gap: 20px; /* Spacing between the feeds */
-            padding: 20px; /* Add padding around the feeds */
-            box-sizing: border-box; /* Include padding in width calculations */
+            justify-content: space-around; /* Space between feeds */
+            gap: 20px; /* Add space between video feeds */
+            padding: 20px;
         }
 
         .video-feed {
-            flex: 1; /* Make both feeds take up equal width */
-            max-width: 50%; /* Prevent them from exceeding half the width */
-            text-align: center; /* Center-align the labels */
+            flex: 1;
+            max-width: 45%; /* Adjust width for balanced layout */
+            text-align: center;
         }
-
         .video-feed img {
             width: 100%; /* Full width of the container */
             height: auto; /* Maintain aspect ratio */
@@ -175,21 +167,20 @@
         }
 
         .status-dashboard {
-            background: #f9f9f9; /* Light background */
-            padding: 20px; /* Add spacing inside the dashboard */
-            border-radius: 8px; /* Optional: Rounded corners */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-            text-align: center; /* Center the text inside */
-            max-width: 400px; /* Optional: Limit the width of the dashboard */
-            width: 100%; /* Make it responsive */
+            width: 100%; /* Full width */
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-family: 'Arial', sans-serif;
+            text-align: center;
         }
 
         .status-dashboard h4 {
-            margin: 0 0 10px;
-            font-size: 1.2rem;
-            color: #4caf50;
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
             font-weight: bold;
-            text-align: center;
         }
 
         .status-dashboard ul {
@@ -209,6 +200,57 @@
         .status-dashboard li strong {
             color: #333;
             font-weight: 600;
+        }
+
+        /* Grid Layout for Status Items */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Responsive grid */
+            gap: 20px; /* Space between items */
+            justify-items: center;
+            align-items: center;
+        }
+
+        /* Horizontal Row for Status Items */
+        .status-row {
+            display: flex; /* Align items in a single row */
+            justify-content: space-between; /* Space items evenly */
+            align-items: center;
+            flex-wrap: wrap; /* Wrap items on smaller screens */
+            gap: 20px;
+        }
+
+        /* Individual Status Item */
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex: 1;
+            min-width: 120px; /* Ensure consistent size */
+        }
+
+        .status-icon {
+            font-size: 2rem; /* Icon size */
+            margin-bottom: 10px; /* Spacing below the icon */
+        }
+
+        .status-label {
+            font-size: 0.9rem; /* Label text size */
+            color: #555;
+            margin-bottom: 5px; /* Spacing below the label */
+        }
+
+        .status-value {
+            font-size: 1.2rem; /* Value text size */
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Controls Section */
+        .controls {
+            width: 100%;
+            padding: 20px;
         }
     
         .camera-status {
@@ -246,6 +288,14 @@
             gap: 20px;
         }
 
+        .controls-container {
+            display: flex; /* Flexbox for horizontal layout */
+            justify-content: space-between; /* Space out the sections */
+            gap: 20px; /* Add space between the sections */
+            align-items: flex-start; /* Align items at the top */
+            width: 100%; /* Full width */
+        }
+
         .controller-status-container {
             display: flex; /* Use Flexbox */
             justify-content: center; /* Center horizontally */
@@ -265,20 +315,25 @@
             width: 100%; /* Make it responsive */
         }
     
-        .status-panel, .keyboard-panel {
+        .keyboard-panel {
             background: #f5f5f5;
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .robot-actions {
+        .status-panel {
+            padding: 20px;
             background: #f9f9f9;
-            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            margin-top: 20px;
+        }
+
+        .robot-actions {
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     
         .status-panel h3, .keyboard-panel h3 {
@@ -498,130 +553,154 @@
         <h1>Robot Teleoperation System</h1>
     </div>
 
-    <div class="video-feeds">
-        <div class="video-feed">
-            <img id="videoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg==" alt="Primary Video Stream">
-            <p class="video-label">Primary Camera</p>
+    <div class="main-container">
+        <!-- Camera Streams -->
+        <div class="video-feeds">
+            <div class="video-feed">
+                <img id="primaryVideoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg==" alt="Primary Video Stream">
+                <p class="video-label">Primary Camera</p>
+            </div>
+            <div class="video-feed">
+                <img id="secondaryVideoFeed" src="data:image/jpeg;base64," alt="Secondary Video Stream">
+                <p class="video-label">Secondary Camera</p>
+            </div>
         </div>
-        <div class="video-feed">
-            <img id="usbVideoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg==" alt="Secondary Camera Feed">
-            <p class="video-label">Secondary Camera</p>
-        </div>
-    </div>
-
-    <div class="status-dashboard-container">
+    
+        <!-- Status Dashboard -->
         <div class="status-dashboard">
-            <h4>Status Dashboard</h4>
-            <ul>
-                <li><strong>Latency:</strong> <span id="status-latency">-- ms</span></li>
-                <li><strong>FPS:</strong> <span id="status-fps">--</span></li>
-                <li><strong>Battery:</strong> <span id="status-battery">--%</span></li>
-                <li><strong>Temperature:</strong> <span id="status-temperature">-- °C</span></li>
-                <li><strong>Connection:</strong> <span id="status-connection">--</span></li>
-                <li><strong>Controller Status:</strong> <span id="status-controller">No Gamepad Detected</span></li>
-            </ul>
-        </div>
-    </div>
-    
-    <!-- <div class="controller-status-container">
-        <div class="controller-status">
-            <h4>Controller Status</h4>
-            <div class="connection-status">
-                <div class="status-indicator" id="joystickIndicator"></div>
-                <span id="joystickStatus">No Gamepad Detected</span>
+            <h4>Sensors & Status</h4>
+            <div class="status-row">
+                <div class="status-item">
+                    <span class="status-icon">🔥</span>
+                    <span class="status-label">Temp</span>
+                    <span class="status-value" id="status-temperature">36.5°C</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">⚡</span>
+                    <span class="status-label">Battery</span>
+                    <span class="status-value" id="status-battery">85%</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">⏱️</span>
+                    <span class="status-label">Latency</span>
+                    <span class="status-value" id="status-latency">130ms</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">📶</span>
+                    <span class="status-label">Connection</span>
+                    <span class="status-value" id="status-connection">WiFi</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">📊</span>
+                    <span class="status-label">Signal</span>
+                    <span class="status-value" id="status-signal">Strong</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">🎮</span>
+                    <span class="status-label">Gamepad</span>
+                    <span class="status-value" id="status-controller">Disconnected</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-icon">🔄</span>
+                    <span class="status-label">CPU Load</span>
+                    <span class="status-value" id="status-cpu">35%</span>
+                </div>
             </div>
         </div>
-    </div> -->
 
-  <div class="main-container">
-   <div class="left-section">
-    <div class="keyboard-controls-container">
-        <div class="keyboard-controls">
-            <h3>Keyboard</h3>
-            <div class="keyboard-grid">
-                <div class="key-row"><div class="key" id="keyW" data-command="move-up">W</div></div>
-                <div class="key-row">
-                    <div class="key" id="keyA" data-command="move-left">A</div>
-                    <div class="key" id="keyS" data-command="move-down">S</div>
-                    <div class="key" id="keyD" data-command="move-right">D</div>
+<!-- Controls Section -->
+<div class="controls">
+    <div class="controls-container">
+        <!-- Left Section: Controls -->
+        <div class="left-section">
+            <div class="keyboard-controls-container">
+                <div class="keyboard-controls">
+                    <h3>Keyboard</h3>
+                    <div class="keyboard-grid">
+                        <div class="key-row"><div class="key" id="keyW" data-command="move-up">W</div></div>
+                        <div class="key-row">
+                            <div class="key" id="keyA" data-command="move-left">A</div>
+                            <div class="key" id="keyS" data-command="move-down">S</div>
+                            <div class="key" id="keyD" data-command="move-right">D</div>
+                        </div>
+                        <div class="key-row">
+                            <div class="key" id="keyArrowLeft" data-command="rotate-left">←</div>
+                            <div class="key" id="keyArrowRight" data-command="rotate-right">→</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="key-row">
-                    <div class="key" id="keyArrowLeft" data-command="rotate-left">←</div>
-                    <div class="key" id="keyArrowRight" data-command="rotate-right">→</div>
+
+                <!-- Keyboard Control List -->
+                <div class="control-list">
+                    <h3>Keyboard Controls</h3>
+                    <ul>
+                        <li><strong>W</strong>: Move Forward</li>
+                        <li><strong>S</strong>: Move Backward</li>
+                        <li><strong>A</strong>: Move Left</li>
+                        <li><strong>D</strong>: Move Right</li>
+                        <li><strong>Arrow Up</strong>: Stand Up</li>
+                        <li><strong>Arrow Down</strong>: Lay Down</li>
+                        <li><strong>B</strong>: Balance</li>
+                        <li><strong>X</strong>: Sit Down</li>
+                        <li><strong>Arrow Left</strong>: Rotate Left</li>
+                        <li><strong>Arrow Right</strong>: Rotate Right</li>
+                    </ul>
                 </div>
             </div>
         </div>
-        
-        <!-- Keyboard Control List -->
-        <div class="control-list">
-            <h3>Keyboard Controls</h3>
-            <ul>
-                <li><strong>W</strong>: Move Forward</li>
-                <li><strong>S</strong>: Move Backward</li>
-                <li><strong>A</strong>: Move Left</li>
-                <li><strong>D</strong>: Move Right</li>
-                <li><strong>Arrow Up</strong>: Stand Up</li>
-                <li><strong>Arrow Down</strong>: Lay Down</li>
-                <li><strong>B</strong>: Balance</li>
-                <li><strong>X</strong>: Sit Down</li>
-                <li><strong>Arrow Left</strong>: Rotate Left</li>
-                <li><strong>Arrow Right</strong>: Rotate Right</li>
-            </ul>
+
+        <!-- Middle Section: Robot Actions -->
+        <div class="middle-section">
+            <div class="robot-actions">
+                <h3>Robot Actions</h3>
+                <div class="actions-grid">
+                    <div class="status-button" id="standButton" title="Press ↑ to stand">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 5l-7 7h4v7h6v-7h4l-7-7z"/>
+                        </svg>
+                        <div class="status-text">Stand Up</div>
+                        <div class="key-hint">↑</div>
+                    </div>
+                    <div class="status-button" id="layButton" title="Press ↓ to lay down">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 19l7-7h-4v-7h-6v7H5l7 7z"/>
+                        </svg>
+                        <div class="status-text">Lay Down</div>
+                        <div class="key-hint">↓</div>
+                    </div>
+                    <div class="status-button" id="sitButton" title="Press X to sit down">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 12l7 7h-4v-4h-6v4H5l7-7z"/>
+                        </svg>
+                        <div class="status-text">Sit Down</div>
+                        <div class="key-hint">X</div>
+                    </div>
+                    <div class="status-button" id="balanceButton" title="Press B to balance">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div class="status-text">Balance</div>
+                        <div class="key-hint">B</div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-   </div>
-   <div class="middle-section">
-    
-    <!-- Robot Actions -->
-    <div class="robot-actions">
-        <h3>Robot Actions</h3>
-        <div class="actions-grid">
-            <div class="status-button" id="standButton" title="Press ↑ to stand">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 5l-7 7h4v7h6v-7h4l-7-7z"/>
-                </svg>
-                <div class="status-text">Stand Up</div>
-                <div class="key-hint">↑</div>
-            </div>
-            <div class="status-button" id="layButton" title="Press ↓ to lay down">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 19l7-7h-4v-7h-6v7H5l7 7z"/>
-                </svg>
-                <div class="status-text">Lay Down</div>
-                <div class="key-hint">↓</div>
-            </div>
-            <div class="status-button" id="sitButton" title="Press X to sit down">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 12l7 7h-4v-4h-6v4H5l7-7z"/>
-                </svg>
-                <div class="status-text">Sit Down</div>
-                <div class="key-hint">X</div>
-            </div>
-            <div class="status-button" id="balanceButton" title="Press B to balance">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <div class="status-text">Balance</div>
-                <div class="key-hint">B</div>
+
+        <!-- Right Section: Command History -->
+        <div class="right-section">
+            <div class="status-panel">
+                <h3>Command History</h3>
+                <ul id="commandHistoryList" style="list-style-type: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto;">
+                </ul>
             </div>
         </div>
     </div>
 </div>
-    <div class="right-section">
-     <div class="status-panel">
-      <h3>
-       Command History
-      </h3>
-      <ul id="commandHistoryList" style="list-style-type: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto;">
-      </ul>
-     </div>
-    </div>
-   </div>
+
    <script>
     const socket = io({
             transports: ['websocket'],
@@ -984,37 +1063,31 @@
             switch (e.key.toLowerCase()) {
                 case 'w':
                     keyboardState.y = -0.7;
-                    addCommandToHistory('Moving Forward');
                     updateKeyDisplay('W', true);
                     sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
                     break;
                 case 's':
                     keyboardState.y = 0.7;
-                    addCommandToHistory('Moving Back');
                     updateKeyDisplay('S', true);
                     sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
                     break;
                 case 'a':
                     keyboardState.x = -0.7;
-                    addCommandToHistory('Moving Left');
                     updateKeyDisplay('A', true);
                     sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
                     break;
                 case 'd':
                     keyboardState.x = 0.7;
-                    addCommandToHistory('Moving Right');
                     updateKeyDisplay('D', true);
                     sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
                     break;
                 case 'arrowleft':
                     keyboardState.z = -0.7;
-                    addCommandToHistory('Rotating Left');
                     updateKeyDisplay('ArrowLeft', true);
                     sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
                     break;
                 case 'arrowright':
                     keyboardState.z = 0.7;
-                    addCommandToHistory('Rotating Right');
                     updateKeyDisplay('ArrowRight', true);
                     sendMovementCommand(keyboardState.x, keyboardState.y, keyboardState.z);
                     break;
