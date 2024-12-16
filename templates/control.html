@@ -134,6 +134,14 @@
         }
     
         /* Video Feed Styling */
+        .camera-title {
+            font-size: 1.2rem; /* Adjust font size */
+            font-weight: bold; /* Make it bold */
+            text-align: center; /* Center-align the title */
+            margin-bottom: 10px; /* Add spacing below the title */
+            color: #333; /* Adjust text color */
+}
+
         .video-feeds {
             display: flex; /* Align feeds side by side */
             justify-content: center; /* Center-align the feeds */
@@ -143,8 +151,8 @@
 
         .video-feed {
             /*16:9 aspect ratio*/
-            width: 426px; /* Fixed width */
-            height: 240px; /* Fixed height */
+            width: 640px; /* Fixed width 426px*/
+            height: 360px; /* Fixed height 240px*/
             text-align: center; /* Center-align labels */
             overflow: hidden; /* Prevent overflow if content exceeds container */
         }
@@ -585,10 +593,12 @@
         <!-- Camera Streams -->
         <div class="video-feeds">
             <div class="video-feed">
+                <h3 class="camera-title">Front Camera</h3>
                 <img id="videoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg==" alt="Primary Video Stream">
                 <p class="video-label">Primary Camera</p>
             </div>
             <div class="video-feed">
+                <h3 class="camera-title">Back Camera</h3>
                 <img id="usbVideoFeed" src="data:image/jpeg;base64,/9j/4AAQSkZJRg==" alt="Secondary Video Stream">
                 <p class="video-label">Secondary Camera</p>
             </div>
@@ -601,13 +611,13 @@
                 <div class="status-item">
                     <span class="status-icon">🔥</span>
                     <span class="status-label">Temp</span>
-                    <span class="status-value" id="status-temperature">36.5°C</span>
+                    <span class="status-value" id="status-temperature">--°C</span>
                 </div>
-                <div class="status-item">
-                    <span class="status-icon">⚡</span>
+                <!-- <div class="status-item">
+                    <span class="status-icon">🔋</span>
                     <span class="status-label">Battery</span>
-                    <span class="status-value" id="status-battery">85%</span>
-                </div>
+                    <span class="status-value" id="status-battery">--%</span>
+                </div> -->
                 <div class="status-item">
                     <span class="status-icon">⏱️</span>
                     <span class="status-label">Latency</span>
@@ -626,7 +636,7 @@
                 <div class="status-item">
                     <span class="status-icon">📊</span>
                     <span class="status-label">Signal</span>
-                    <span class="status-value" id="status-signal">Strong</span>
+                    <span class="status-value" id="status-signal">85%</span>
                 </div>
                 <div class="status-item">
                     <span class="status-icon">🎮</span>
@@ -636,7 +646,7 @@
                 <div class="status-item">
                     <span class="status-icon">🔄</span>
                     <span class="status-label">CPU Load</span>
-                    <span class="status-value" id="status-cpu">35%</span>
+                    <span class="status-value" id="status-cpu">0%</span>
                 </div>
             </div>
         </div>
@@ -829,10 +839,10 @@
         }
 
         socket.on('frame', (data) => {
-            console.log('Frame received');
-            console.log('Data:', data);
-            console.log('Latency:', statusData.latency);
-            console.log('FPS:', statusData.fps);
+            //console.log('Frame received');
+            //console.log('Data:', data);
+            //console.log('Latency:', statusData.latency);
+            //console.log('FPS:', statusData.fps);
 
             if (pendingFrame) return;
 
@@ -873,6 +883,33 @@
             usbVideoFeed.src = `data:image/jpeg;base64,${data.data}`;
             console.log("Received USB frame");  // Debug log
         });
+
+        // Function to update CPU Load in the Status Dashboard
+        socket.on('cpu_load', (data) => {
+            statusData.cpu = data.cpu || '--'; // Update statusData with new CPU load
+            updateStatusDashboard(); // Refresh the dashboard
+        });
+
+        // Function to update temperature in the Status Dashboard
+        socket.on('temperature', (data) => {
+            //console.log('Received temperature data:', data); // Debugging
+            statusData.temperature = data.temp || '--';
+            updateStatusDashboard();
+        });
+
+        socket.on('signal_strength', (data) => {
+            const signalStrength = data.signal || '--';
+            document.getElementById('status-signal').textContent = `${signalStrength}%`;
+            updateStatusDashboard();
+        });
+
+        // socket.on('battery_status', (data) => {
+        //     console.log('Received battery data:', data); // Debugging
+        //     const battery = data.battery || '--';
+        //     document.getElementById('status-battery').textContent = `${battery}%`;
+        //     updateStatusDashboard();
+        // });
+
 
         socket.on('connect_error', (error) => {
             console.log('Connection Error:', error);
@@ -1379,18 +1416,21 @@
         const statusData = {
             latency: '--',
             fps: '--',
-            battery: '--',
+            //battery: '85',
             temperature: '--',
-            connection: '--'
+            connection: '--',
+            cpu: '--'
         };
 
         // Function to update status dashboard
         function updateStatusDashboard() {
+            console.log('Status Data:', statusData); // Debugging
             document.getElementById('status-latency').textContent = `${statusData.latency} ms`;
             document.getElementById('status-fps').textContent = statusData.fps || '--';
-            document.getElementById('status-battery').textContent = `${statusData.battery || '--'}%`;
+            //document.getElementById('status-battery').textContent = `${statusData.battery || '--'}%`;
             document.getElementById('status-temperature').textContent = `${statusData.temperature || '--'} °C`;
             document.getElementById('status-connection').textContent = statusData.connection || '--';
+            document.getElementById('status-cpu').textContent = `${statusData.cpu || '--'}%`;
         }
 
    </script>

@@ -9,6 +9,8 @@ from models import db
 from robot_control import RobotControl
 from camera_stream import camera_config  # Only import Unitree Go2 camera config
 from unitree_sdk2py.core.channel import ChannelFactoryInitialize
+import psutil
+import subprocess
 
 logging.basicConfig(
     level=logging.INFO,
@@ -119,6 +121,73 @@ def init_usb_camera(camera_index=0, width=320, height=240, fps=15):
         logger.error(f"Error initializing USB camera: {str(e)}")
         return None
 
+# New event for emitting CPU load to the client
+def send_cpu_load():
+    while True:
+        try:
+            cpu_load = psutil.cpu_percent(interval=1)  # Get CPU usage every second
+            socketio.emit('cpu_load', {'cpu': cpu_load})  # Emit to connected clients
+            time.sleep(1)  # Emit every second
+        except Exception as e:
+            logger.error(f"Error sending CPU load: {str(e)}")
+
+# Start CPU load monitoring in a background thread
+cpu_thread = threading.Thread(target=send_cpu_load)
+cpu_thread.daemon = True
+cpu_thread.start()
+
+def get_temperature():
+    """Fetch the Raspberry Pi CPU temperature."""
+    try:
+        with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
+            temp = int(f.read().strip()) / 1000.0  # Convert millidegree to degree Celsius
+            return round(temp, 1)  # Round to 1 decimal place
+    except FileNotFoundError:
+        print("Temperature file not found.")
+        return None  # Return None if the file doesn't exist
+
+
+# New event for emitting TEMP load to the client
+def send_temperature():
+    while True:
+        temp = get_temperature()
+        print(f"Sending temperature: {temp}")  # Debugging
+        socketio.emit('temperature', {'temp': temp})  # Emit temperature
+        time.sleep(5)  # Send updates every 5 seconds
+
+# Start a background thread for sending temperature data
+temp_thread = threading.Thread(target=send_temperature)
+temp_thread.daemon = True
+temp_thread.start()
+
+def get_signal_strength():
+    """Fetch the Wi-Fi signal strength as a percentage."""
+    try:
+        # Run iwconfig to get Wi-Fi signal quality
+        result = subprocess.check_output(["iwconfig"], universal_newlines=True)
+        for line in result.split("\n"):
+            if "Link Quality" in line:
+                # Parse signal quality: 'Link Quality=70/70'
+                quality = line.split("Link Quality=")[1].split(" ")[0]
+                quality = quality.split("/")
+                signal_percent = (int(quality[0]) / int(quality[1])) * 100  # Convert to percentage
+                return round(signal_percent)
+        return None
+    except Exception as e:
+        print(f"Error fetching signal strength: {e}")
+        return None
+
+def send_signal_strength():
+    """Continuously send Wi-Fi signal strength to the client."""
+    while True:
+        signal_strength = get_signal_strength()  # Get Wi-Fi signal strength
+        if signal_strength is not None:
+            socketio.emit('signal_strength', {'signal': signal_strength})  # Emit via WebSocket
+        time.sleep(5)  # Update every 5 seconds
+
+signal_thread = threading.Thread(target=send_signal_strength)
+signal_thread.daemon = True
+signal_thread.start()
 
 def init_db():
     with app.app_context():
